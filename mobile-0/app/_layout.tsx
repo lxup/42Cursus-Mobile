@@ -33,6 +33,7 @@ export default function RootLayout() {
         <Stack.Screen name="ex00" options={{ title: 'Exercice 00' }} />
         <Stack.Screen name="ex01" options={{ title: 'Exercice 01' }} />
         <Stack.Screen name="ex02" options={{ title: 'Calculator' }} />
+        <Stack.Screen name="ex03" options={{ title: 'Calculator' }} />
         <Stack.Screen name="+not-found" />
       </Stack>
       <StatusBar style="auto" />

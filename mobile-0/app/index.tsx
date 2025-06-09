@@ -1,7 +1,8 @@
-import { SafeAreaView, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { Link } from 'expo-router';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function HomeScreen() {
   return (
@@ -16,6 +17,9 @@ export default function HomeScreen() {
         </Link>
         <Link href="/ex02">
           <ThemedText type="link">Exercice 02</ThemedText>
+        </Link>
+        <Link href="/ex03">
+          <ThemedText type="link">Exercice 03</ThemedText>
         </Link>
       </ThemedView>
     </SafeAreaView>
