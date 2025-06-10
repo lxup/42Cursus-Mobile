@@ -158,6 +158,8 @@ export default function Ex03() {
 	}, [isPortrait, verticalOrder, horizontalOrder, buttons]);
 
 	const getDisplayExpression = useCallback((expression: string) => {
+		if (expression === 'NaN') return 'Non défini';
+		if (expression === 'Error') return 'Erreur mathématique';
 		const valueToLabelMap = buttons.reduce((map, button) => {
 			if (button.value !== button.label) {
 			map[button.value] = button.label;
@@ -182,6 +184,19 @@ export default function Ex03() {
 			.map((char) => valueToLabelMap[char] || char)
 			.join('');
 	}, [buttons]);
+
+	const formatter = useCallback((expression: string) => {
+		let formattedExpression = expression
+		// delete leading operators
+		formattedExpression = formattedExpression.replace(/[+\-*\/%]+$/, '');
+		// close all open parentheses
+		const openParenthesesCount = (formattedExpression.match(/\(/g) || []).length;
+		const closeParenthesesCount = (formattedExpression.match(/\)/g) || []).length;
+		if (openParenthesesCount > closeParenthesesCount) {
+			formattedExpression += ')'.repeat(openParenthesesCount - closeParenthesesCount);
+		}
+		return formattedExpression
+	}, [])
 
 	const handleButtonPress = useCallback((text: string) => {
 		console.log(`Button pressed: ${text}`);
@@ -250,14 +265,15 @@ export default function Ex03() {
 		} else if (text === '=') {
 			if (!disableAction) {
 				try {
-					const expression = currentExpression.replace(/[+\-*\/%]+$/, '');
+					const expression = formatter(currentExpression);
 					const evaluatedResult = eval(expression);
 					setPrevExpression(expression);
 					setCurrentExpression(evaluatedResult.toString());
 					setPrevIsResult(true);
 				} catch (error) {
-					console.error('Error evaluating expression:', error);
+					void(error);
 					setCurrentExpression('Error');
+					setPrevExpression(currentExpression);
 				}
 			}
 		} else if (text === '±') {
@@ -267,9 +283,7 @@ export default function Ex03() {
 				if (lastNumber) {
 					if ((lastNumber.startsWith('-') || lastNumber.startsWith('+')) && lastNumber.length < currentExpression.length) {
 						const charBeforeLastNumberIsOperator = isOperator(currentExpression.slice(-lastNumber.length - 1, -lastNumber.length));
-
 						const operator = lastNumber.at(0);
-						console.warn(charBeforeLastNumberIsOperator, operator, lastNumber);
 						if (charBeforeLastNumberIsOperator) {
 							if (operator === '-') {
 								setCurrentExpression(currentExpression.slice(0, -lastNumber.length) + lastNumber.replace(/^[+-]/, ''));
@@ -292,17 +306,18 @@ export default function Ex03() {
 							const evaluatedResultFormat = evaluatedResult < 0 ? `(${evaluatedResult.toString()})` : evaluatedResult.toString();
 							setCurrentExpression(currentExpression.slice(0, startIndex) + evaluatedResultFormat);
 						} catch (error) {
-							console.error('Error evaluating expression:', error);
+							void(error);
 							setCurrentExpression('Error');
+							setPrevExpression(toggled);
 							return;
 						}
 					}
 				}
 			}
 		}
-		
+
 		if ((prevIsResult || !disableAction) && text !== '=' ) setPrevIsResult(false);
-	}, [currentExpression, prevIsResult]);
+	}, [currentExpression, prevIsResult, formatter, isOperator]);
 
 	return (
 		<SafeAreaView style={styles.container} edges={['bottom', 'left', 'right']}>
