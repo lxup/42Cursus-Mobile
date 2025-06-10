@@ -31,115 +31,9 @@ export default function Ex03() {
 	const buttonWidth = isPortrait ? (width / buttonPerRow) - (paddingButtonContainer * 2) : (width / buttonPerRow) - (paddingButtonContainer * 2);
 	const buttonHeight = isPortrait ? buttonWidth : (height / buttonPerRow) - (paddingButtonContainer * 2) - height * 0.1;
 
-	const isOperator = (text: string) => {
+	const isOperator = useCallback((text: string) => {
 		return ['+', '-', '*', '/', '%'].includes(text);
-	};
-
-	const handleButtonPress = (text: string) => {
-		console.log(`Button pressed: ${text}`);
-		const disableAction = currentExpression === 'NaN' || currentExpression === 'Error';
-		if (text === 'AC') {
-			setCurrentExpression('');
-			setPrevExpression('');
-		} else if (text ==='C') {
-			if (!disableAction) {
-				setCurrentExpression(prev => prev.slice(0, -1));
-			}
-		} else if (!isNaN(parseFloat(text))) {
-			const lastNumber = currentExpression.split(/[\+\-x\/%]/).pop();
-			if (
-				(text !== '0' || currentExpression !== '') // Prevent leading zero
-				&& (lastNumber !== '0' || currentExpression === '') // Prevent multiple leading zeros
-			) {
-				if (currentExpression.endsWith(')')) {
-					setCurrentExpression(prev => prev + '*' + text);
-				} else {
-					setCurrentExpression(prev => `${prevIsResult ? '' : prev}${text}`);
-				}
-			}
-		} else if (text === '.') {
-			const lastNumber = currentExpression.split(/[\+\-x\/%]/).pop();
-			if (lastNumber && !lastNumber.includes('.')) {
-
-				if (currentExpression.endsWith(')')) {
-					setCurrentExpression(prev => prev + '*0.');
-				} else {
-					setCurrentExpression(prev => prev + '.');
-				}
-			} else if (isOperator(currentExpression.slice(-1)) || currentExpression === '') {
-				setCurrentExpression(prev => prev + '0.');
-			} else if (prevIsResult) {
-				setCurrentExpression('0.');
-			}
-		} else if (isOperator(text)) {
-			if (!disableAction) {
-				const lastChar = currentExpression.slice(-1);
-				const isLastCharOperator = isOperator(lastChar);
-				switch (text) {
-					case '-':
-						if (lastChar === '+') {
-							setCurrentExpression(prev => prev.slice(0, -1) + text);
-						} else if (lastChar !== '-') {
-							setCurrentExpression(prev => prev + text);
-						}
-						break;
-					default:
-						if (lastChar === '-' && isOperator(currentExpression.slice(-2, -1))) {
-							setCurrentExpression(prev => prev.slice(0, -2) + text);
-						} else if (isLastCharOperator) {
-							setCurrentExpression(prev => prev.slice(0, -1) + text);
-						} else if (!currentExpression) {
-							setCurrentExpression(prev => prev + '0' + text);
-						} else {
-							setCurrentExpression(prev => prev + text);
-						}
-						break;
-				}
-			}
-		} else if (text === '=') {
-			if (!disableAction) {
-				try {
-					const expression = currentExpression.replace(/[+\-*\/%]+$/, '');
-					const evaluatedResult = eval(expression);
-					setPrevExpression(expression);
-					setCurrentExpression(evaluatedResult.toString());
-					setPrevIsResult(true);
-				} catch (error) {
-					console.error('Error evaluating expression:', error);
-					setCurrentExpression('Error');
-				}
-			}
-		} else if (text === '±') {
-			if (!disableAction && currentExpression) {
-				const lastNumberMatch = currentExpression.match(/(\(?-?\d+(?:,\d+)?\)?)$/);
-				const lastNumber = lastNumberMatch?.[0];
-				if (lastNumber) {
-					const startIndex = currentExpression.length - lastNumber.length;
-					let toggled;
-
-					if (lastNumber.startsWith('(') && lastNumber.endsWith(')')) {
-						toggled = lastNumber.replace(/^\(|\)$/g, '').replace('-', '');
-					} else {
-						toggled = `(${lastNumber} * -1)`;
-					}
-
-					console.log('Toggled:', toggled);
-					try {
-						const evaluatedResult = eval(toggled);
-						const evaluatedResultFormat = evaluatedResult < 0 ? `(${evaluatedResult.toString()})` : evaluatedResult.toString();
-						console.log('Evaluated Result:', evaluatedResultFormat);
-						setCurrentExpression(currentExpression.slice(0, startIndex) + evaluatedResultFormat);
-					} catch (error) {
-						console.error('Error evaluating expression:', error);
-						setCurrentExpression('Error');
-						return;
-					}
-				}
-			}
-		}
-
-		if (prevIsResult && text !== '=' ) setPrevIsResult(false);
-	};
+	}, []);
 
 	const buttons: Button[] = useMemo(() => [
 		{
@@ -289,6 +183,127 @@ export default function Ex03() {
 			.join('');
 	}, [buttons]);
 
+	const handleButtonPress = useCallback((text: string) => {
+		console.log(`Button pressed: ${text}`);
+		const disableAction = currentExpression === 'NaN' || currentExpression === 'Error';
+		if (text === 'AC') {
+			setCurrentExpression('');
+			setPrevExpression('');
+		} else if (text ==='C') {
+			if (!disableAction) {
+				setCurrentExpression(prev => prev.slice(0, -1));
+			}
+		} else if (!isNaN(parseFloat(text))) {
+			const lastNumber = currentExpression.split(/[\+\-x\/%]/).pop();
+			if (disableAction) {
+				setCurrentExpression(text);
+				setPrevExpression('');
+			} else if (
+				(text !== '0' || currentExpression !== '') // Prevent leading zero
+				&& (lastNumber !== '0' || currentExpression === '') // Prevent multiple leading zeros
+			) {
+				if (currentExpression.endsWith(')')) {
+					setCurrentExpression(prev => prev + '*' + text);
+				} else {
+					setCurrentExpression(prev => `${prevIsResult ? '' : prev}${text}`);
+				}
+			}
+		} else if (text === '.') {
+			const lastNumber = currentExpression.split(/[\+\-x\/%]/).pop();
+			if (lastNumber && !lastNumber.includes('.')) {
+
+				if (currentExpression.endsWith(')')) {
+					setCurrentExpression(prev => prev + '*0.');
+				} else {
+					setCurrentExpression(prev => prev + '.');
+				}
+			} else if (isOperator(currentExpression.slice(-1)) || currentExpression === '') {
+				setCurrentExpression(prev => prev + '0.');
+			} else if (prevIsResult) {
+				setCurrentExpression('0.');
+			}
+		} else if (isOperator(text)) {
+			if (!disableAction) {
+				const lastChar = currentExpression.slice(-1);
+				const isLastCharOperator = isOperator(lastChar);
+				switch (text) {
+					case '-':
+						if (lastChar === '+') {
+							setCurrentExpression(prev => prev.slice(0, -1) + text);
+						} else if (lastChar !== '-') {
+							setCurrentExpression(prev => prev + text);
+						}
+						break;
+					default:
+						if (lastChar === '-' && isOperator(currentExpression.slice(-2, -1))) {
+							setCurrentExpression(prev => prev.slice(0, -2) + text);
+						} else if (isLastCharOperator) {
+							setCurrentExpression(prev => prev.slice(0, -1) + text);
+						} else if (!currentExpression) {
+							setCurrentExpression(prev => prev + '0' + text);
+						} else {
+							setCurrentExpression(prev => prev + text);
+						}
+						break;
+				}
+			}
+		} else if (text === '=') {
+			if (!disableAction) {
+				try {
+					const expression = currentExpression.replace(/[+\-*\/%]+$/, '');
+					const evaluatedResult = eval(expression);
+					setPrevExpression(expression);
+					setCurrentExpression(evaluatedResult.toString());
+					setPrevIsResult(true);
+				} catch (error) {
+					console.error('Error evaluating expression:', error);
+					setCurrentExpression('Error');
+				}
+			}
+		} else if (text === '±') {
+			if (!disableAction && currentExpression) {
+				const lastNumberMatch = currentExpression.match(/(\(?[+-]?\d+(?:,\d+)?\)?)$/);
+				const [lastNumber] = lastNumberMatch || [];
+				if (lastNumber) {
+					if ((lastNumber.startsWith('-') || lastNumber.startsWith('+')) && lastNumber.length < currentExpression.length) {
+						const charBeforeLastNumberIsOperator = isOperator(currentExpression.slice(-lastNumber.length - 1, -lastNumber.length));
+
+						const operator = lastNumber.at(0);
+						console.warn(charBeforeLastNumberIsOperator, operator, lastNumber);
+						if (charBeforeLastNumberIsOperator) {
+							if (operator === '-') {
+								setCurrentExpression(currentExpression.slice(0, -lastNumber.length) + lastNumber.replace(/^[+-]/, ''));
+							} else {
+								setCurrentExpression(currentExpression.slice(0, -lastNumber.length) + lastNumber.replace(/^[+-]/, '-'));
+							}
+						} else {
+							setCurrentExpression(currentExpression.slice(0, -lastNumber.length) + lastNumber.replace(/^[+-]/, operator === '-' ? '+' : '-'));
+						}
+					} else {
+						const startIndex = currentExpression.length - lastNumber.length;
+						let toggled;
+						if (lastNumber.startsWith('(') && lastNumber.endsWith(')')) {
+							toggled = lastNumber.replace(/^\(|\)$/g, '').replace('-', '');
+						} else {
+							toggled = `(${lastNumber} * -1)`;
+						}
+						try {
+							const evaluatedResult = eval(toggled);
+							const evaluatedResultFormat = evaluatedResult < 0 ? `(${evaluatedResult.toString()})` : evaluatedResult.toString();
+							setCurrentExpression(currentExpression.slice(0, startIndex) + evaluatedResultFormat);
+						} catch (error) {
+							console.error('Error evaluating expression:', error);
+							setCurrentExpression('Error');
+							return;
+						}
+					}
+				}
+			}
+		}
+		
+		if ((prevIsResult || !disableAction) && text !== '=' ) setPrevIsResult(false);
+	}, [currentExpression, prevIsResult]);
+
 	return (
 		<SafeAreaView style={styles.container} edges={['bottom', 'left', 'right']}>
 			<View style={[styles.expressionContainer]}>
@@ -326,7 +341,7 @@ export default function Ex03() {
 									}
 								]}
 							>
-								<ThemedText style={{ color: 'white', fontSize: buttonWidth * 0.3, lineHeight: buttonWidth * 0.3 }}>
+								<ThemedText style={{ color: 'white', fontSize: isPortrait ? (buttonWidth * 0.3) : (buttonHeight / 2), lineHeight: isPortrait ? (buttonWidth * 0.3) : (buttonHeight / 2) }}>
 									{button.label}
 								</ThemedText>
 							</TouchableHighlight>
