@@ -2,12 +2,12 @@ import { StyleSheet, TouchableHighlight, useWindowDimensions, View } from 'react
 import { ThemedText } from '@/components/ThemedText';
 import { Row } from '@/components/Row';
 import { useThemeColor } from '@/hooks/useThemeColor';
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 type Button = {
-	text: string;
-	onPress?: () => void;
+	label: string;
+	value: string;
 	theme: 'default' | 'accent' | 'muted';
 }
 
@@ -30,134 +30,132 @@ export default function Ex02() {
 
 	const buttons: Button[] = useMemo(() => [
 		{
-			text: 'AC',
-			onPress: () => {},
+			label: 'AC',
+			value: 'AC',
 			theme: 'muted'
 		},
 		{
-			text: 'C',
-			onPress: () => {},
+			label: '±',
+			value: '±',
 			theme: 'muted'
 		},
 		{
-			text: '%',
-			onPress: () => {},
+			label: '%',
+			value: '%',
 			theme: 'muted'
 		},
 		{
-			text: '/',
-			onPress: () => {},
+			label: '÷',
+			value: '/',
 			theme: 'accent'
 		},
 		{
-			text: '7',
-			onPress: () => {},
+			label: '7',
+			value: '7',
 			theme: 'default'
 		},
 		{
-			text: '8',
-			onPress: () => {},
+			label: '8',
+			value: '8',
 			theme: 'default'
 		},
 		{
-			text: '9',
-			onPress: () => {},
+			label: '9',
+			value: '9',
 			theme: 'default'
 		},
 		{
-			text: 'x',
-			onPress: () => {},
+			label: 'x',
+			value: '*',
 			theme: 'accent'
 		},
 		{
-			text: '4',
-			onPress: () => {},
+			label: '4',
+			value: '4',
 			theme: 'default'
 		},
 		{
-			text: '5',
-			onPress: () => {},
+			label: '5',
+			value: '5',
 			theme: 'default'
 		},
 		{
-			text: '6',
-			onPress: () => {},
+			label: '6',
+			value: '6',
 			theme: 'default'
 		},
 		{
-			text: '-',
-			onPress: () => {},
+			label: '-',
+			value: '-',
 			theme: 'accent'
 		},
 		{
-			text: '1',
-			onPress: () => {},
+			label: '1',
+			value: '1',
 			theme: 'default'
 		},
 		{
-			text: '2',
-			onPress: () => {},
+			label: '2',
+			value: '2',
 			theme: 'default'
 		},
 		{
-			text: '3',
-			onPress: () => {},
+			label: '3',
+			value: '3',
 			theme: 'default'
 		},
 		{
-			text: '+',
-			onPress: () => {},
+			label: '+',
+			value: '+',
 			theme: 'accent'
 		},
 		{
-			text: '±',
-			onPress: () => {},
+			label: 'C',
+			value: 'C',
 			theme: 'default'
 		},
 		{
-			text: '0',
-			onPress: () => {},
+			label: '0',
+			value: '0',
 			theme: 'default'
 		},
 		{
-			text: ',',
-			onPress: () => {},
+			label: ',',
+			value: '.',
 			theme: 'default'
 		},
 		{
-			text: '=',
-			onPress: () => {},
+			label: '=',
+			value: '=',
 			theme: 'accent'
 		}
 	], []);
 
 	const verticalOrder = useMemo(() => [
-		'AC', 'C', '%', '/',
-		'7', '8', '9', 'x',
+		'AC', '±', '%', '/',
+		'7', '8', '9', '*',
 		'4', '5', '6', '-',
 		'1', '2', '3', '+',
-		'±', '0', ',', '='
+		'C', '0', '.', '='
 	], []);
 	const horizontalOrder = useMemo(() => [
 		'7', '8', '9', 'AC', '/',
-		'4', '5', '6', 'C', 'x',
+		'4', '5', '6', '±', '*',
 		'1', '2', '3', '%', '-',
-		'±', '0', ',', '=', '+'
+		'C', '0', '.', '=', '+'
 	], []);
 
 	const orderedButtons = useMemo(() => {
 		const order = isPortrait ? verticalOrder : horizontalOrder;
-		return order.map(text => buttons.find(button => button.text === text)).filter(Boolean) as Button[];
-	}, [isPortrait, verticalOrder, horizontalOrder]);
+		return order.map(text => buttons.find(button => button.value === text)).filter(Boolean) as Button[];
+	}, [isPortrait, verticalOrder, horizontalOrder, buttons]);
 
 	return (
 		<SafeAreaView style={styles.container} edges={['bottom', 'left', 'right']}>
 			<View style={[styles.expressionContainer]}>
-				{/* EXPRESSION */}
-				<ThemedText style={styles.expression} type='title'>
+				<ThemedText style={styles.expression}>
 					{'0'}
 				</ThemedText>
-				{/* RESULTS PREVIEW */}
 				<ThemedText style={[styles.result, { color: mutedColor }]} type='defaultSemiBold'>
 					{'0'}
 				</ThemedText>
@@ -169,8 +167,7 @@ export default function Ex02() {
 							<TouchableHighlight
 								key={index}
 								onPress={() => {
-									console.log(`Button pressed: ${button.text}`);
-									button.onPress?.();
+									console.log(`Button pressed: ${button.label}`);
 								}}
 								underlayColor={button.theme === 'default' ? secondarySelectedColor : button.theme === 'muted' ? mutedSelectedColor : button.theme === 'accent' ? accentSelectedColor : undefined}
 								style={[
@@ -190,8 +187,8 @@ export default function Ex02() {
 									}
 								]}
 							>
-								<ThemedText style={{ color: 'white', fontSize: buttonWidth * 0.3, lineHeight: buttonWidth * 0.3 }}>
-									{button.text}
+								<ThemedText style={{ color: 'white', fontSize: isPortrait ? (buttonWidth * 0.3) : (buttonHeight / 2), lineHeight: isPortrait ? (buttonWidth * 0.3) : (buttonHeight / 2) }}>
+									{button.label}
 								</ThemedText>
 							</TouchableHighlight>
 						))}
@@ -210,16 +207,20 @@ const styles = StyleSheet.create({
 	},
 	expressionContainer: {
 		flex: 1,
-		flexDirection: 'column',
-		alignItems: 'flex-end',
-		padding: 16,
+		padding: 12,
 	},
 	expression: {
-
+		width: '100%',
+		textAlign: 'right',
+		fontSize: 40,
+		lineHeight: 48,
+		fontWeight: 'bold',
 	},
 	result: {
+		textAlign: 'right',
 		fontSize: 24,
     	lineHeight: 32,
+		flexShrink: 0,
 	},
 	button: {
 		display: 'flex',

@@ -200,10 +200,6 @@ export default function Ex03() {
 	}, [])
 
 	const handleButtonPress = useCallback((text: string) => {
-		console.log(`Button pressed: ${text}`);
-		if (Platform.OS === 'ios') {
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-        }
 		const disableAction = currentExpression === 'NaN' || currentExpression === 'Error' || currentExpression === 'Infinity' || currentExpression === '-Infinity';
 		if (text === 'AC') {
 			setCurrentExpression('');
@@ -340,6 +336,10 @@ export default function Ex03() {
 							<TouchableHighlight
 								key={index}
 								onPress={() => {
+									console.log(`Button pressed: ${button.label}`);
+									if (Platform.OS === 'ios') {
+										Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+									}
 									handleButtonPress(button.value);
 								}}
 								underlayColor={button.theme === 'default' ? secondarySelectedColor : button.theme === 'muted' ? mutedSelectedColor : button.theme === 'accent' ? accentSelectedColor : undefined}
