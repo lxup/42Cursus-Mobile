@@ -1,9 +1,10 @@
-import { StyleSheet, TouchableHighlight, useWindowDimensions, View } from 'react-native';
+import { Platform, StyleSheet, TouchableHighlight, useWindowDimensions, View } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { Row } from '@/components/Row';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import { useCallback, useMemo, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import * as Haptics from 'expo-haptics';
 
 type Button = {
 	label: string;
@@ -200,6 +201,9 @@ export default function Ex03() {
 
 	const handleButtonPress = useCallback((text: string) => {
 		console.log(`Button pressed: ${text}`);
+		if (Platform.OS === 'ios') {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        }
 		const disableAction = currentExpression === 'NaN' || currentExpression === 'Error';
 		if (text === 'AC') {
 			setCurrentExpression('');
@@ -322,10 +326,10 @@ export default function Ex03() {
 	return (
 		<SafeAreaView style={styles.container} edges={['bottom', 'left', 'right']}>
 			<View style={[styles.expressionContainer]}>
-				<ThemedText style={styles.expression} type='title'>
+				<ThemedText style={styles.expression} numberOfLines={prevIsResult ? 2 : undefined} ellipsizeMode='head' adjustsFontSizeToFit>
 					{getDisplayExpression(currentExpression) || '0'}
 				</ThemedText>
-				{prevExpression && <ThemedText style={[styles.result, { color: mutedColor }]} type='defaultSemiBold'>
+				{prevExpression && <ThemedText style={[styles.result, { color: mutedColor }]} type='defaultSemiBold' numberOfLines={1} ellipsizeMode='head' adjustsFontSizeToFit>
 					{getDisplayExpression(prevExpression)}
 				</ThemedText>}
 			</View>
@@ -376,17 +380,20 @@ const styles = StyleSheet.create({
 	},
 	expressionContainer: {
 		flex: 1,
-		flexDirection: 'column',
-		alignItems: 'flex-end',
-		padding: 16,
+		padding: 12,
 	},
 	expression: {
+		width: '100%',
 		textAlign: 'right',
+		fontSize: 40,
+		lineHeight: 48,
+		fontWeight: 'bold',
 	},
 	result: {
 		textAlign: 'right',
 		fontSize: 24,
     	lineHeight: 32,
+		flexShrink: 0,
 	},
 	button: {
 		display: 'flex',
