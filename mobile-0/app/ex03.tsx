@@ -159,7 +159,7 @@ export default function Ex03() {
 	}, [isPortrait, verticalOrder, horizontalOrder, buttons]);
 
 	const getDisplayExpression = useCallback((expression: string) => {
-		if (expression === 'NaN') return 'Non défini';
+		if (expression === 'NaN' || expression === 'Infinity' || expression === '-Infinity') return 'Non défini';
 		if (expression === 'Error') return 'Erreur mathématique';
 		const valueToLabelMap = buttons.reduce((map, button) => {
 			if (button.value !== button.label) {
@@ -204,7 +204,7 @@ export default function Ex03() {
 		if (Platform.OS === 'ios') {
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
         }
-		const disableAction = currentExpression === 'NaN' || currentExpression === 'Error';
+		const disableAction = currentExpression === 'NaN' || currentExpression === 'Error' || currentExpression === 'Infinity' || currentExpression === '-Infinity';
 		if (text === 'AC') {
 			setCurrentExpression('');
 			setPrevExpression('');
@@ -326,7 +326,7 @@ export default function Ex03() {
 	return (
 		<SafeAreaView style={styles.container} edges={['bottom', 'left', 'right']}>
 			<View style={[styles.expressionContainer]}>
-				<ThemedText style={styles.expression} numberOfLines={prevIsResult ? 2 : undefined} ellipsizeMode='head' adjustsFontSizeToFit>
+				<ThemedText style={styles.expression} numberOfLines={prevIsResult ? 3 : 1} ellipsizeMode='head' adjustsFontSizeToFit>
 					{getDisplayExpression(currentExpression) || '0'}
 				</ThemedText>
 				{prevExpression && <ThemedText style={[styles.result, { color: mutedColor }]} type='defaultSemiBold' numberOfLines={1} ellipsizeMode='head' adjustsFontSizeToFit>
