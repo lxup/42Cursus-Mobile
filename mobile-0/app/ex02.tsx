@@ -22,7 +22,7 @@ export default function Ex02() {
 	
 	// State
 	const { width, height } = useWindowDimensions();
-	const isPortrait = height >= width;
+	const isPortrait = height >= width && width < 600;
 	const buttonPerRow = isPortrait ? 4 : 5;
 	const paddingButtonContainer = 4;
 	const buttonWidth = isPortrait ? (width / buttonPerRow) - (paddingButtonContainer * 2) : (width / buttonPerRow) - (paddingButtonContainer * 2);
