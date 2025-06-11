@@ -1,0 +1,1 @@
+export const OPEN_METEO_API_URL = 'https://geocoding-api.open-meteo.com/v1';
