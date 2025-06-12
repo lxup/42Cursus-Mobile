@@ -37,7 +37,7 @@ export default function Ex01Layout() {
         <MaterialTopTabs.Screen
         name="index"
         options={{
-          tabBarIcon: ({ color } : { color: string }) => <IconSymbol size={28} name="house.fill" color={color} />,
+          tabBarIcon: ({ color } : { color: string }) => <IconSymbol size={28} name="sun.min"  color={color} />,
           tabBarLabel: 'Currently',
           tabBarAccessibilityLabel: 'Currently',
         }}
@@ -45,7 +45,7 @@ export default function Ex01Layout() {
         <MaterialTopTabs.Screen
         name="today"
         options={{
-          tabBarIcon: ({ color } : { color: string }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          tabBarIcon: ({ color } : { color: string }) => <IconSymbol size={28} name="calendar.day.timeline.leading" color={color} />,
           tabBarLabel: 'Today',
           tabBarAccessibilityLabel: 'Today',
         }}
