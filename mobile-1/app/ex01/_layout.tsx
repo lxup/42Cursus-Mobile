@@ -1,5 +1,4 @@
 import React from 'react';
-import { Platform } from 'react-native';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
@@ -7,7 +6,6 @@ import { createMaterialTopTabNavigator, MaterialTopTabNavigationEventMap, Materi
 import { withLayoutContext } from "expo-router";
 import { ParamListBase, TabNavigationState } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import * as Haptics from 'expo-haptics';
 import TopBar from '@/components/TopBar';
 import { LocationProvider } from '@/context/LocationProvider';
 
@@ -29,11 +27,6 @@ export default function Ex01Layout() {
       <TopBar />
       <MaterialTopTabs
       tabBarPosition='bottom'
-      onTabSelect={(event) => {
-        if (Platform.OS === 'ios') {
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-        }
-      }}
       screenOptions={{
         tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
         tabBarStyle: {

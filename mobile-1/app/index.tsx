@@ -12,7 +12,7 @@ export default function HomeScreen() {
         <Link href='/ex00'>
           <ThemedText type="link">Exercice 00</ThemedText>
         </Link>
-		<Link href="/ex01">
+		    <Link href="/ex01">
           <ThemedText type="link">Exercice 01</ThemedText>
         </Link>
       </ThemedView>
