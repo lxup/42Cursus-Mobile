@@ -16,7 +16,10 @@ export const useSearch = ({
 				throw new Error('Network response was not ok');
 			}
 			const data: { results: OpenMeteoSearchResult[] } = await reponse.json();
-			return data.results.map((result: OpenMeteoSearchResult) => result);
+			if (!data.results || data.results.length === 0) {
+				return [];
+			}
+			return data.results.map((result: OpenMeteoSearchResult) => result) || [];
 		},
 		enabled: !!query && query.length > 0,
 	})

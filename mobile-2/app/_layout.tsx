@@ -35,12 +35,12 @@ export default function RootLayout() {
           headerShown: false,
         }}
         />
-        {/* <Stack.Screen
+        <Stack.Screen
         name="ex01"
         options={{
           headerShown: false,
         }}
-        /> */}
+        />
         <Stack.Screen name="+not-found" />
       </Stack>
       <StatusBar style="auto" />
