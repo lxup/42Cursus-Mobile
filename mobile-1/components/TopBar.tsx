@@ -4,8 +4,12 @@ import { useThemeColor } from "@/hooks/useThemeColor";
 import { IconSymbol } from "./ui/IconSymbol";
 import { useState } from "react";
 import { useLocation } from "@/context/LocationProvider";
+import useOrientation from "@/hooks/useOrientation";
+
+const PADDING = 8;
 
 const TopBar = () => {
+	const orientation = useOrientation();
 	const { updateActiveLocation } = useLocation();
 	const insets = useSafeAreaInsets();
 	// Colors
@@ -39,9 +43,10 @@ const TopBar = () => {
 			justifyContent: 'space-between',
 			gap: 8,
 			backgroundColor: backgroundColor,
-			paddingTop: insets.top,
-			paddingHorizontal: 16,
-			paddingBottom: 8,
+			paddingTop: orientation === 'portrait' ? insets.top : insets.top + PADDING,
+			paddingLeft: orientation === 'portrait' ? insets.left + PADDING : insets.left,
+			paddingRight: orientation === 'portrait' ? insets.right + PADDING : insets.right,
+			paddingBottom: PADDING,
 		}}
 		>
 			{/* SEARCHBAR */}

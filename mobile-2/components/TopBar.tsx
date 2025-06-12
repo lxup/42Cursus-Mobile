@@ -8,8 +8,12 @@ import Geolocation from "./Geolocation";
 import * as Location from "expo-location";
 import { useSearch } from "@/queries/search";
 import { ThemedText } from "./ThemedText";
+import useOrientation from "@/hooks/useOrientation";
+
+const PADDING = 8;
 
 const TopBar = () => {
+	const orientation = useOrientation();
 	const { updateActiveLocation } = useLocation();
 	const insets = useSafeAreaInsets();
 	// Colors
@@ -42,7 +46,6 @@ const TopBar = () => {
 			data: location,
 		});
 	};
-	console.log("TopBar results", results);
 	return (
 	<>
 		<SafeAreaView
@@ -53,9 +56,10 @@ const TopBar = () => {
 			justifyContent: 'space-between',
 			gap: 8,
 			backgroundColor: backgroundColor,
-			paddingTop: 8,
-			paddingHorizontal: 16,
-			paddingBottom: 8,
+			paddingTop: orientation === 'portrait' ? insets.top : insets.top + PADDING,
+			paddingLeft: orientation === 'portrait' ? insets.left + PADDING : insets.left,
+			paddingRight: orientation === 'portrait' ? insets.right + PADDING : insets.right,
+			paddingBottom: PADDING,
 		}}
 		>
 			{/* SEARCHBAR */}
