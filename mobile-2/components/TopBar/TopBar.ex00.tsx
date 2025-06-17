@@ -1,5 +1,5 @@
 import { StyleSheet, TextInput, TouchableOpacity, View } from "react-native";
-import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { IconSymbol } from "../ui/IconSymbol";
 import { useState } from "react";
@@ -13,7 +13,6 @@ const PADDING = 8;
 const TopBar = () => {
 	const orientation = useOrientation();
 	const { updateActiveLocation } = useLocation();
-	const insets = useSafeAreaInsets();
 	// Colors
 	const textColor = useThemeColor({}, "text");
 	const backgroundColor = useThemeColor({}, "background");
@@ -24,7 +23,6 @@ const TopBar = () => {
 	const handleSearch = () => {
 		if (search.trim() === "") return;
 		updateActiveLocation({
-			id: `search-${Date.now()}`,
 			name: search,
 			source: 'search',
 		});
@@ -32,10 +30,12 @@ const TopBar = () => {
 	};
 	const handleGeolocation = (location: Location.LocationObject) => {
 		updateActiveLocation({
-			id: `geolocation-${Date.now()}`,
 			name: 'Geolocation',
 			source: 'geolocation',
-			data: location,
+			data: {
+				latitude: location.coords.latitude,
+				longitude: location.coords.longitude,
+			}
 		});
 	};
 	return (

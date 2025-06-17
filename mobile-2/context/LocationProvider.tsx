@@ -1,11 +1,14 @@
 import { createContext, useContext, useState } from "react";
-import * as Location from 'expo-location';
+import * as TLocation from 'expo-location';
 
 type Location = {
-	id: string;
 	name: string;
 	source: 'geolocation' | 'search';
-	data?: Location.LocationObject;
+	data?: {
+		address?: TLocation.LocationGeocodedAddress;
+		latitude: number;
+		longitude: number;
+	};
 }
 
 type LocationContextProps = {

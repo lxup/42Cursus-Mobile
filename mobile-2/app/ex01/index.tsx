@@ -2,6 +2,7 @@ import { StyleSheet } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocation } from '@/context/LocationProvider';
+import tw from '@/lib/tw';
 
 export default function CurrentlyScreen() {
   const { activeLocation } = useLocation();
@@ -9,11 +10,12 @@ export default function CurrentlyScreen() {
     <SafeAreaView style={styles.container}>
       <ThemedText>Currently</ThemedText>
       {activeLocation && (
-        activeLocation.source === 'geolocation' ? (
-          <ThemedText>{activeLocation.data?.coords.latitude}, {activeLocation.data?.coords.longitude}</ThemedText>
-        ) : (
-          <ThemedText>{activeLocation.name}</ThemedText>
-        )
+        <>
+          <ThemedText style={tw`font-bold`}>{activeLocation.name}</ThemedText>
+          <ThemedText>
+          {activeLocation.data?.latitude}, {activeLocation.data?.longitude}
+          </ThemedText>
+        </>
       )}
     </SafeAreaView>
   );

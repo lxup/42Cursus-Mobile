@@ -9,7 +9,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LocationProvider } from '@/context/LocationProvider';
 import { QueryClientProvider } from '@tanstack/react-query';
 import queryClient from '@/lib/react-query';
-import TopBar from '@/components/TopBar/TopBar.ex00';
+import TopBar from '@/components/TopBar/TopBar.ex02';
 
 const Tabs = createMaterialTopTabNavigator();
 const MaterialTopTabs = withLayoutContext<
@@ -20,7 +20,7 @@ const MaterialTopTabs = withLayoutContext<
 >(Tabs.Navigator);
 
 
-export default function Ex00Layout() {
+export default function Ex01Layout() {
   const colorScheme = useColorScheme();
   const insets = useSafeAreaInsets();
 

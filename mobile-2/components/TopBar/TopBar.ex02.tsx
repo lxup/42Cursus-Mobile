@@ -1,4 +1,4 @@
-import { ActivityIndicator, StyleSheet, TextInput, TouchableOpacity, useWindowDimensions, View } from "react-native";
+import { ActivityIndicator, Alert, StyleSheet, TextInput, TouchableOpacity, useWindowDimensions, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { IconSymbol } from "../ui/IconSymbol";
@@ -13,7 +13,6 @@ import Animated, { useAnimatedStyle, useSharedValue } from "react-native-reanima
 import useDebounce from "@/hooks/useDebounce";
 import tw from "@/lib/tw";
 import { OpenMeteoSearchResult } from "@/types/OpenMeteo";
-import { OPEN_METEO_GEOCODING_API_URL } from "@/lib/open-meteo";
 
 const PADDING = 8;
 
@@ -34,6 +33,8 @@ const TopBar = () => {
 	const {
 		data: results,
 		isLoading: isLoadingResults,
+		isError,
+		refetch: refetchResults,
 	} = useSearch({
 		query: debouncedSearch,
 	});
@@ -55,16 +56,41 @@ const TopBar = () => {
 			name: item.name,
 			source: 'search',
 			data: {
+				address: {
+					city: item.name,
+					country: item.country,
+					district: null,
+					formattedAddress: `${item.name}, ${item.admin1}, ${item.country}`,
+					isoCountryCode: item.country_code,
+					name: item.name,
+					postalCode: `${item.admin1_code}`,
+					region: item.admin1,
+					street: null,
+					streetNumber: null,
+					subregion: null,
+					timezone: item.timezone,
+				},
 				latitude: item.latitude,
 				longitude: item.longitude,
 			}
 		});
 	}, [handleCloseSearch, updateActiveLocation]);
-	const handleGeolocation = useCallback((location: Location.LocationObject) => {
+	const handleGeolocation = useCallback(async (location: Location.LocationObject) => {
+		const reverseGeocodeAsync = async (coords: Location.LocationObjectCoords): Promise<Location.LocationGeocodedAddress | undefined> => {
+			try {
+				const geocode = await Location.reverseGeocodeAsync(coords);
+				return geocode.at(0);
+			} catch (error) {
+				Alert.alert('Error', `Error reverse geocoding location`);
+				return undefined;
+			}
+		};
+		const address = await reverseGeocodeAsync(location.coords);
 		updateActiveLocation({
 			name: 'Geolocation',
 			source: 'geolocation',
 			data: {
+				address: address,
 				latitude: location.coords.latitude,
 				longitude: location.coords.longitude,
 			}
@@ -163,6 +189,16 @@ const TopBar = () => {
 					<ActivityIndicator style={[tw`p-2`]} />
 				) : results?.length === 0 ? (
 					<ThemedText style={[tw`text-center p-2`, { color: mutedForegroundColor }]} >No results found</ThemedText>
+				) : isError ? (
+					<View style={tw`flex flex-col items-center border border-red-500 rounded p-4 gap-2`}>
+						<View style={tw`flex flex-col items-center`}>
+							<ThemedText style={[{ color: mutedForegroundColor }]}>Error searching for locations</ThemedText>
+							<ThemedText style={[tw`text-xs`, { color: mutedForegroundColor }]}>Please check your internet connection or try again later.</ThemedText>
+						</View>
+						<TouchableOpacity onPress={() => refetchResults()} style={tw`p-2 bg-red-500 rounded-full`}>
+							<ThemedText>Retry</ThemedText>
+						</TouchableOpacity>
+					</View>
 				) : (
 					<ThemedText style={[tw`text-center p-2`, { color: mutedForegroundColor }]} >Search for a location...</ThemedText>
 				)
@@ -191,7 +227,6 @@ const styles = StyleSheet.create({
 	},
 	results: {
 		position: 'absolute',
-		// maxHeight: '50%',
 		left: 0,
 		right: 0,
 		borderBottomLeftRadius: 8,

@@ -10,7 +10,7 @@ export default function CurrentlyScreen() {
       <ThemedText>Currently</ThemedText>
       {activeLocation && (
         activeLocation.source === 'geolocation' ? (
-          <ThemedText>{activeLocation.data?.coords.latitude}, {activeLocation.data?.coords.longitude}</ThemedText>
+          <ThemedText>{activeLocation.data?.latitude}, {activeLocation.data?.longitude}</ThemedText>
         ) : (
           <ThemedText>{activeLocation.name}</ThemedText>
         )

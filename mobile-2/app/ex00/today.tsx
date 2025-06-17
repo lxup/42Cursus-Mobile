@@ -9,7 +9,11 @@ export default function TodayScreen() {
     <SafeAreaView style={styles.container}>
       <ThemedText>Today</ThemedText>
       {activeLocation && (
-        <ThemedText>{activeLocation.name}</ThemedText>
+        activeLocation.source === 'geolocation' ? (
+          <ThemedText>{activeLocation.data?.latitude}, {activeLocation.data?.longitude}</ThemedText>
+        ) : (
+          <ThemedText>{activeLocation.name}</ThemedText>
+        )
       )}
     </SafeAreaView>
   );

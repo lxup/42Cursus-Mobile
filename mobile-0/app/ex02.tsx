@@ -2,7 +2,7 @@ import { StyleSheet, TouchableHighlight, useWindowDimensions, View } from 'react
 import { ThemedText } from '@/components/ThemedText';
 import { Row } from '@/components/Row';
 import { useThemeColor } from '@/hooks/useThemeColor';
-import { useCallback, useMemo } from 'react';
+import { useMemo } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 type Button = {
