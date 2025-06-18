@@ -1,5 +1,5 @@
 import { ActivityIndicator, StyleSheet, TextInput, TouchableOpacity, useWindowDimensions, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { IconSymbol } from "../ui/IconSymbol";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -13,6 +13,7 @@ import Animated, { useAnimatedStyle, useSharedValue } from "react-native-reanima
 import useDebounce from "@/hooks/useDebounce";
 import tw from "@/lib/tw";
 import { OpenMeteoSearchResult } from "@/types/OpenMeteo";
+import { useKeyboard } from "@/hooks/useKeyboard";
 
 const PADDING = 8;
 
@@ -20,6 +21,8 @@ const TopBar = () => {
 	const orientation = useOrientation();
 	const { updateActiveLocation } = useLocation();
 	const { height } = useWindowDimensions();
+	const { height: keyboardHeight } = useKeyboard();
+	const insets = useSafeAreaInsets();
 	// Colors
 	const textColor = useThemeColor({}, "text");
 	const backgroundColor = useThemeColor({}, "background");
@@ -71,10 +74,12 @@ const TopBar = () => {
 	}, [updateActiveLocation]);
 	// Styles
 	const resultsContainerStyle = useAnimatedStyle(() => ({
+		paddingLeft: insets.left,
+		paddingRight: insets.right,
 		top: topbarHeight.get(),
 		backgroundColor: backgroundColor,
-		height:  height- topbarHeight.get(),
-	}), [topbarHeight, backgroundColor, height]);
+		height: height - topbarHeight.get() - keyboardHeight,
+	}), [topbarHeight, backgroundColor, height, keyboardHeight, insets]);
 
 	useEffect(() => {
 		if (submitRequested && !isLoadingResults && results !== undefined) {
@@ -87,27 +92,24 @@ const TopBar = () => {
 
 	return (
 	<>
-		<SafeAreaView
+		<View
 		onLayout={(e) => {
 			topbarHeight.value = e.nativeEvent.layout.height;
 		}}
-		edges={['top', 'left', 'right']}
 		style={{
 			flexDirection: 'row',
 			alignItems: 'center',
 			justifyContent: 'space-between',
 			gap: 8,
 			backgroundColor: backgroundColor,
-			paddingTop: orientation === 'landscape' ? PADDING : undefined,
-			paddingLeft: orientation === 'portrait' ? PADDING : undefined,
-			paddingRight: orientation === 'portrait' ? PADDING : undefined,
+			paddingTop: insets.top + (orientation === 'landscape' ? PADDING : 0),
+			paddingLeft: insets.left + (orientation === 'portrait' ? PADDING : 0),
+			paddingRight: insets.right + (orientation === 'portrait' ? PADDING : 0),
 			paddingBottom: PADDING,
 		}}
 		>
 			{/* SEARCHBAR */}
-			<View
-			style={[{ backgroundColor: mutedColor }, styles.searchBar]}
-			>
+			<View style={[{ backgroundColor: mutedColor }, styles.searchBar]}>
 				<IconSymbol size={20} name="magnifyingglass" color={textColor} />
 				<TextInput
 				ref={searchRef}
@@ -142,7 +144,7 @@ const TopBar = () => {
 			) : (
 				<Geolocation onGeolocation={handleGeolocation} />
 			)}
-		</SafeAreaView>
+		</View>
 		{onSearch && (
 			<Animated.FlatList
 			style={[styles.results, resultsContainerStyle]}
@@ -190,7 +192,6 @@ const styles = StyleSheet.create({
 	},
 	results: {
 		position: 'absolute',
-		// maxHeight: '50%',
 		left: 0,
 		right: 0,
 		borderBottomLeftRadius: 8,
