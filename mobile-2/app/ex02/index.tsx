@@ -26,13 +26,13 @@ export default function CurrentlyScreen() {
     longitude: activeLocation?.data?.longitude,
   });
   const weatherCondition = useMemo(() => {
-    if (!meteo?.current?.weatherCode) return undefined;
+    if (meteo?.current?.weatherCode === undefined) return undefined;
     return getWeatherCondition(meteo.current.weatherCode);
   }, [meteo]);
 
   return (
   <SafeAreaView edges={['left', 'right']} style={tw`flex-1`}>
-    <ScrollView contentContainerStyle={tw`flex-1 justify-center items-center gap-4 p-4`}>
+    <ScrollView contentContainerStyle={tw`min-h-full justify-center items-center gap-4 p-4`}>
         {activeLocation ? (
           <>
             {/* HEADER */}

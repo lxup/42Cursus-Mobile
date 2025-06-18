@@ -8,6 +8,7 @@ import getWeatherCondition from '@/hooks/getWeatherCondition';
 import { SymbolView } from 'expo-symbols';
 import { useMemo } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import LineChartTwo from '@/components/Charts';
 
 export default function TodayScreen() {
   // Colors
@@ -36,7 +37,7 @@ export default function TodayScreen() {
 
   return (
     <SafeAreaView edges={['left', 'right']} style={tw`flex-1`}>
-      <ScrollView contentContainerStyle={tw`flex-1 justify-center items-center gap-4 p-4`}>
+      <ScrollView contentContainerStyle={tw`justify-center items-center gap-4 p-4`}>
         {activeLocation ? (
           <>
           {/* HEADER */}
@@ -54,7 +55,10 @@ export default function TodayScreen() {
             <ActivityIndicator />
           ) : meteoToday?.length ? (
             <>
-
+              <View style={[tw`flex flex-col items-center justify-center gap-1 bg-red-500`, { height: 700 }]}>
+                <ThemedText>Big VView</ThemedText>
+              </View>
+              {/* <LineChartTwo /> */}
               <FlatList
               data={meteoToday}
               keyExtractor={(item) => item.time}

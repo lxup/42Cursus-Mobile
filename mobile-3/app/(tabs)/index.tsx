@@ -32,7 +32,7 @@ export default function CurrentlyScreen() {
 
   return (
   <SafeAreaView edges={['left', 'right']} style={tw`flex-1`}>
-    <ScrollView contentContainerStyle={tw`flex-1 justify-center items-center gap-4 p-4`}>
+    <ScrollView contentContainerStyle={tw`min-h-full justify-center items-center gap-4 p-4`}>
         {activeLocation ? (
           <>
             {/* HEADER */}

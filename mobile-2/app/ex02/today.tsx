@@ -53,7 +53,7 @@ export default function TodayScreen() {
           </View>
         )}
         renderItem={({ item, index }) => {
-          const weatherCondition = item.weatherCode ? getWeatherCondition(item.weatherCode) : undefined;
+          const weatherCondition = item.weatherCode !== undefined ? getWeatherCondition(item.weatherCode) : undefined;
           return (
             <View style={tw`flex-row items-center justify-between w-full px-4 py-2 ${index !== meteoToday?.length! - 1 ? 'border-b border-gray-200/50' : ''}`}>
               <View style={tw`flex-1 items-start`}>

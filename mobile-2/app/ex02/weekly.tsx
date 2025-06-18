@@ -46,7 +46,7 @@ export default function WeeklyScreen() {
           data={meteoWeekly}
           keyExtractor={(item) => item.time}
           renderItem={({ item, index }) => {
-            const weatherCondition = item.weatherCode ? getWeatherCondition(item.weatherCode) : undefined;
+            const weatherCondition = item.weatherCode !== undefined ? getWeatherCondition(item.weatherCode) : undefined;
             return (
               <View style={[tw`flex flex-row items-center justify-between w-full px-4 py-2`, index !== meteoWeekly?.length! - 1 && tw`border-b border-gray-200/50`]}>
                 <ThemedText>{new Date(item.time).toLocaleDateString('en-US', { weekday: 'long' })}</ThemedText>
