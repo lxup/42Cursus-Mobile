@@ -54,15 +54,27 @@ export default function TodayScreen() {
         renderItem={({ item, index }) => {
           const weatherCondition = item.weatherCode ? getWeatherCondition(item.weatherCode) : undefined;
           return (
-            <View style={[tw`flex flex-row items-center justify-between w-full px-4 py-2`, index !== meteoToday?.length! - 1 && tw`border-b border-gray-200/50`]}>
-              <ThemedText>{`${new Date(item.time).toLocaleTimeString([], { hour: '2-digit' })} h`}</ThemedText>
-              <View style={tw`flex flex-row items-center gap-2`}>
-                {weatherCondition && <SymbolView
-                  size={24}
-                  name={weatherCondition?.icon}
-                  type="multicolor"
-                />}
-                <ThemedText>{item.temp?.toFixed(0)}°C</ThemedText>
+            <View style={tw`flex-row items-center justify-between w-full px-4 py-2 ${index !== meteoToday?.length! - 1 ? 'border-b border-gray-200/50' : ''}`}>
+              <View style={tw`flex-1 items-start`}>
+                <ThemedText>{`${new Date(item.time).toLocaleTimeString([], { hour: '2-digit' })} h`}</ThemedText>
+              </View>
+
+              <View style={tw`flex-1 items-center`}>
+                {item.windSpeed && (
+                  <View style={tw`flex-row items-center gap-2 justify-center`}>
+                    <SymbolView size={24} name="wind" type="multicolor" />
+                    <ThemedText>{item.windSpeed.toFixed(0)} km/h</ThemedText>
+                  </View>
+                )}
+              </View>
+
+              <View style={tw`flex-1 items-end`}>
+                <View style={tw`flex-row items-center gap-2 justify-end`}>
+                  {weatherCondition && (
+                    <SymbolView size={24} name={weatherCondition?.icon} type="multicolor" />
+                  )}
+                  <ThemedText>{item.temp?.toFixed(0)}°C</ThemedText>
+                </View>
               </View>
             </View>
           )
