@@ -81,6 +81,7 @@ const TopBar = () => {
 				const geocode = await Location.reverseGeocodeAsync(coords);
 				return geocode.at(0);
 			} catch (error) {
+				(void error);
 				Alert.alert('Error', `Error reverse geocoding location`);
 				return undefined;
 			}

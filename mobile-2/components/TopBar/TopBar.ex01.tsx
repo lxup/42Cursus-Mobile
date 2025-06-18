@@ -13,7 +13,6 @@ import Animated, { useAnimatedStyle, useSharedValue } from "react-native-reanima
 import useDebounce from "@/hooks/useDebounce";
 import tw from "@/lib/tw";
 import { OpenMeteoSearchResult } from "@/types/OpenMeteo";
-import { OPEN_METEO_GEOCODING_API_URL } from "@/lib/open-meteo";
 
 const PADDING = 8;
 
