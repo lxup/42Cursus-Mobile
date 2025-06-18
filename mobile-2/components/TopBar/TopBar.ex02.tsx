@@ -9,7 +9,7 @@ import * as Location from "expo-location";
 import { useSearch } from "@/queries/open-meteo";
 import { ThemedText } from "../ThemedText";
 import useOrientation from "@/hooks/useOrientation";
-import Animated, { useAnimatedStyle, useSharedValue } from "react-native-reanimated";
+import Animated, { useAnimatedStyle, useSharedValue, withSpring } from "react-native-reanimated";
 import useDebounce from "@/hooks/useDebounce";
 import tw from "@/lib/tw";
 import { OpenMeteoSearchResult } from "@/types/OpenMeteo";
@@ -45,6 +45,7 @@ const TopBar = () => {
 	const searchRef = useRef<TextInput>(null);
 	// SharedValues
 	const topbarHeight = useSharedValue(0);
+	const resultsAnimatedHeight = useSharedValue(0);
 	// Handlers
 	const handleCloseSearch = useCallback(() => {
 		setOnSearch(false);
@@ -102,12 +103,12 @@ const TopBar = () => {
 	}, [updateActiveLocation]);
 	// Styles
 	const resultsContainerStyle = useAnimatedStyle(() => ({
-		paddingLeft: insets.left,
-		paddingRight: insets.right,
+		paddingLeft: insets.left + (orientation === 'portrait' ? PADDING : 0),
+		paddingRight: insets.right + (orientation === 'portrait' ? PADDING : 0),
 		top: topbarHeight.get(),
 		backgroundColor: backgroundColor,
-		height: height - topbarHeight.get() - keyboardHeight,
-	}), [topbarHeight, backgroundColor, height, keyboardHeight, insets]);
+		height: resultsAnimatedHeight.get(),
+	}), [topbarHeight, backgroundColor, insets, orientation, resultsAnimatedHeight]);
 
 	useEffect(() => {
 		if (submitRequested && !isLoadingResults && results !== undefined) {
@@ -117,6 +118,12 @@ const TopBar = () => {
 			setSubmitRequested(false);
 		}
 	}, [results, isLoadingResults, submitRequested, handleResultPress]);
+	useEffect(() => {
+		resultsAnimatedHeight.value = withSpring(height - topbarHeight.value - keyboardHeight, {
+			damping: 100,
+			stiffness: 300
+		});
+	}, [height, keyboardHeight, topbarHeight, resultsAnimatedHeight]);
 
 	return (
 	<>
@@ -187,7 +194,7 @@ const TopBar = () => {
 					</View>
 				</TouchableOpacity>
 			)}
-			ListEmptyComponent={() => !submitRequested && (
+			ListEmptyComponent={() => (
 				isLoadingResults ? (
 					<ActivityIndicator style={[tw`p-2`]} />
 				) : results?.length === 0 ? (
