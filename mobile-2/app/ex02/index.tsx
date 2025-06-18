@@ -8,6 +8,7 @@ import { IconSymbol } from '@/components/ui/IconSymbol';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import getWeatherCondition from '@/hooks/getWeatherCondition';
 import { SymbolView } from 'expo-symbols';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function CurrentlyScreen() {
   // Colors
@@ -30,6 +31,7 @@ export default function CurrentlyScreen() {
   }, [meteo]);
 
   return (
+  <SafeAreaView edges={['left', 'right']} style={tw`flex-1`}>
     <ScrollView contentContainerStyle={tw`flex-1 justify-center items-center gap-4 p-4`}>
         {activeLocation ? (
           <>
@@ -85,5 +87,6 @@ export default function CurrentlyScreen() {
           <ThemedText style={[tw`text-center`, { color: mutedForegroundColor }]}>Select a location</ThemedText>
         )}
     </ScrollView>
+  </SafeAreaView>
   );
 }

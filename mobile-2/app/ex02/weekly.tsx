@@ -8,6 +8,7 @@ import { useMemo } from 'react';
 import { useMeteo } from '@/queries/open-meteo';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import { IconSymbol } from '@/components/ui/IconSymbol';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function WeeklyScreen() {
   // Colors
@@ -39,7 +40,7 @@ export default function WeeklyScreen() {
 
 
   return (
-    <View style={tw`flex-1 justify-center items-center gap-4 p-4`}>
+    <SafeAreaView edges={['left', 'right']} style={tw`flex-1 justify-center items-center gap-4 p-4`}>
         {activeLocation ? (
           <FlatList
           data={meteoWeekly}
@@ -100,6 +101,6 @@ export default function WeeklyScreen() {
         ) : (
           <ThemedText style={[tw`text-center`, { color: mutedForegroundColor }]}>Select a location</ThemedText>
         )}
-    </View>
+    </SafeAreaView>
   );
 }

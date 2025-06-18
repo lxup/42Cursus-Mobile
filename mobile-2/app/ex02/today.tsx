@@ -7,6 +7,7 @@ import { useMeteo } from '@/queries/open-meteo';
 import getWeatherCondition from '@/hooks/getWeatherCondition';
 import { SymbolView } from 'expo-symbols';
 import { useMemo } from 'react';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function TodayScreen() {
   // Colors
@@ -34,7 +35,7 @@ export default function TodayScreen() {
   }, [meteo]);
 
   return (
-    <View style={tw`flex-1 justify-center items-center gap-4 p-4`}>
+    <SafeAreaView edges={['left', 'right']} style={tw`flex-1 justify-center items-center gap-4 p-4`}>
       {activeLocation ? (
         <FlatList
         data={meteoToday}
@@ -100,6 +101,6 @@ export default function TodayScreen() {
       ) : (
         <ThemedText style={[tw`text-center`, { color: mutedForegroundColor }]}>Select a location</ThemedText>
       )}
-    </View>
+    </SafeAreaView>
   );
 }
