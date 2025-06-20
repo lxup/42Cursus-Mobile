@@ -151,7 +151,7 @@ const TopBar = () => {
 				autoCapitalize="none"
 				autoCorrect={false}
 				autoComplete="off"
-				placeholder="Search location, city, or address..."
+				placeholder="Search for a location..."
 				style={[
 					styles.searchInput,
 					{ color: textColor },

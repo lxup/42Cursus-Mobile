@@ -1,4 +1,4 @@
-import { ActivityIndicator, FlatList, ScrollView, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, FlatList, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { useLocation } from '@/context/LocationProvider';
 import tw from '@/lib/tw';
@@ -8,7 +8,7 @@ import getWeatherCondition from '@/hooks/getWeatherCondition';
 import { SymbolView } from 'expo-symbols';
 import { useMemo } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import LineChart from '@/components/LineChart';
+import { LineChart, ruleTypes } from 'react-native-gifted-charts';
 
 export default function TodayScreen() {
   // Colors
@@ -58,12 +58,94 @@ export default function TodayScreen() {
             <>
               <View style={[tw`px-10 py-6 rounded-md`, { paddingRight: 30, backgroundColor: backgroundColor }]}>
                 <LineChart
-                data={meteoToday.map(item => ({
+                areaChart
+                data={meteoToday.map((item, index) => ({
                   value: item.temp!,
                   date: item.time,
+                  label: index % 4 === 0 ? (
+                    `${new Date(item.time).toLocaleTimeString([], { hour: '2-digit' })} h`
+                  ) : undefined,
                 }))}
-                scale='hour'
-                yAxisLabelWidth={30}
+                rotateLabel
+                adjustToWidth
+                color="#ffb300"
+                thickness={2}
+                startFillColor="rgba(105, 75, 20, 0.3)"
+                endFillColor="rgba(85, 67, 20, 0.01)"
+                startOpacity={0.9}
+                endOpacity={0.2}
+                initialSpacing={0}
+                endSpacing={0}
+                noOfSections={6}
+                stepHeight={40}
+                maxValue={meteoToday.reduce((max, item) => Math.max(max, item.temp!), 0) + 2}
+                rulesType={ruleTypes.SOLID}
+                rulesColor="gray"
+                yAxisColor="white"
+                yAxisThickness={0}
+                yAxisTextStyle={{color: 'gray', fontSize: 10 }}
+                yAxisLabelSuffix="°C"
+                yAxisTextNumberOfLines={2}
+                xAxisLabelTextStyle={{
+                  color: 'gray',
+                  width: 80,
+                  marginLeft: -36
+                }}
+                xAxisIndicesColor={'white'}
+                xAxisIndicesHeight={2}
+                xAxisIndicesWidth={1}
+                xAxisColor="lightgray"
+                pointerConfig={{
+                  pointerStripHeight: 160,
+                  pointerStripColor: 'lightgray',
+                  pointerStripWidth: 2,
+                  pointerColor: 'lightgray',
+                  radius: 6,
+                  pointerLabelWidth: 100,
+                  pointerLabelHeight: 90,
+                  // activatePointersOnLongPress: true,
+                  autoAdjustPointerLabelPosition: false,
+                  pointerLabelComponent: (item: { date: string, value: number }[]) => {
+                    const date = new Date(item[0].date);
+                    const formattedDate = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    return (
+                      <View
+                        style={{
+                          height: 90,
+                          width: 100,
+                          justifyContent: 'center',
+                          zIndex: 1000,
+                          // marginTop: -30,
+                          // marginLeft: -40,
+                        }}>
+                        <Text
+                          style={{
+                            color: 'white',
+                            fontSize: 14,
+                            marginBottom: 6,
+                            textAlign: 'center',
+                          }}>
+                          {formattedDate}
+                        </Text>
+            
+                        <View
+                          style={{
+                            paddingHorizontal: 14,
+                            paddingVertical: 6,
+                            borderRadius: 16,
+                            backgroundColor: 'white',
+                          }}>
+                          <Text style={{fontWeight: 'bold', textAlign: 'center'}}>
+                            {`${item[0].value.toFixed(0)}°C`}
+                          </Text>
+                        </View>
+                      </View>
+                    );
+                  },
+                }}
+                isAnimated
+                animationDuration={500}
+                animationEasing="easeInOut"
                 />
               </View>
               <FlatList

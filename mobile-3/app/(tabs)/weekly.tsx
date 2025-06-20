@@ -72,7 +72,7 @@ export default function WeeklyScreen() {
                   date: item.time,
                 }))}
                 rotateLabel
-                adjustToWidth
+                // adjustToWidth
                 color1='#ffb300'
                 color2='#2196f3'
                 thickness={2}
@@ -113,7 +113,6 @@ export default function WeeklyScreen() {
                     radius: 6,
                     pointerLabelWidth: 100,
                     pointerLabelHeight: 90,
-                    // activatePointersOnLongPress: true,
                     autoAdjustPointerLabelPosition: false,
                     pointerLabelComponent: (item: { date: string, value: number }[]) => {
                       const date = new Date(item[0].date);
@@ -125,8 +124,6 @@ export default function WeeklyScreen() {
                             width: 100,
                             justifyContent: 'center',
                             zIndex: 1000,
-                            // marginTop: -30,
-                            // marginLeft: -40,
                           }}>
                           <Text
                             style={{
@@ -156,6 +153,7 @@ export default function WeeklyScreen() {
                   isAnimated
                   animationDuration={500}
                   animationEasing={'easeInOut'}
+                  
                 />
               </View>
               <FlatList
@@ -170,13 +168,13 @@ export default function WeeklyScreen() {
                       <SymbolView size={24} name={weatherCondition?.icon ?? 'sun.max.fill'} type="multicolor" />
                       {item.tempMax && (
                         <View style={tw`flex-row items-center gap-1`}>
-                          <IconSymbol size={16} name="arrow.up" color={textColor} />
+                          <IconSymbol size={12} name="arrow.up" color={textColor} />
                           <ThemedText style={{ fontSize: 10 }}>{item.tempMax.toFixed(0)}°C</ThemedText>
                         </View>
                       )}
                       {item.tempMin && (
                         <View style={tw`flex-row items-center gap-1`}>
-                          <IconSymbol size={16} name="arrow.down" color={textColor} />
+                          <IconSymbol size={12} name="arrow.down" color={textColor} />
                           <ThemedText style={{ fontSize: 10 }}>{item.tempMin.toFixed(0)}°C</ThemedText>
                         </View>
                       )}
