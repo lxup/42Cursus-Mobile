@@ -1,4 +1,4 @@
-import { ActivityIndicator, FlatList, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, FlatList, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { useLocation } from '@/context/LocationProvider';
 import tw from '@/lib/tw';
@@ -9,9 +9,11 @@ import { useMeteo } from '@/queries/open-meteo';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { LineChart, ruleTypes } from 'react-native-gifted-charts';
 
 export default function WeeklyScreen() {
   // Colors
+  const backgroundColor = useThemeColor({}, 'background');
   const textColor = useThemeColor({}, 'text');
   const mutedForegroundColor = useThemeColor({}, 'mutedForeground');
   // States
@@ -38,52 +40,157 @@ export default function WeeklyScreen() {
     });
   }, [meteo]);
 
-
   return (
-    <SafeAreaView edges={['left', 'right']} style={tw`flex-1 justify-center items-center gap-4 p-4`}>
+    <SafeAreaView edges={['left', 'right']} style={tw`flex-1`}>
+      <ScrollView contentContainerStyle={tw`relative min-h-full justify-center items-center gap-4`}>
         {activeLocation ? (
-          <FlatList
-          data={meteoWeekly}
-          keyExtractor={(item) => item.time}
-          renderItem={({ item, index }) => {
-            const weatherCondition = item.weatherCode !== undefined ? getWeatherCondition(item.weatherCode) : undefined;
-            return (
-              <View style={[tw`flex flex-row items-center justify-between w-full px-4 py-2`, index !== meteoWeekly?.length! - 1 && tw`border-b border-gray-200/50`]}>
-                <ThemedText>{new Date(item.time).toLocaleDateString('en-US', { weekday: 'long' })}</ThemedText>
-                <View style={tw`flex flex-row items-center gap-2`}>
-                  {weatherCondition && <SymbolView
-                    size={24}
-                    name={weatherCondition?.icon}
-                    type="multicolor"
-                  />}
-                  <View style={tw`flex flex-row items-center gap-1`}>
-                    <IconSymbol size={16} name="arrow.up" color={textColor} />
-                    <ThemedText style={tw`text-sm font-semibold`}>{item.tempMax?.toFixed(0)}°C</ThemedText>
-                  </View>
-                  <View style={tw`flex flex-row items-center gap-1`}>
-                    <IconSymbol size={16} name="arrow.down" color={textColor} />
-                    <ThemedText style={tw`text-sm font-semibold`}>{item.tempMin?.toFixed(0)}°C</ThemedText>
-                  </View>
-                </View>
-              </View>
-            )
-          }}
-          ListHeaderComponent={() => (
-            <View style={tw`flex flex-col items-center gap-1`}>
-              {activeLocation.source === 'geolocation' && <ThemedText style={tw`text-xs`}>MY POSITION</ThemedText>}
-              <View style={tw`flex flex-col items-center`}>
-                <ThemedText type="subtitle" style={tw`font-bold`}>{activeLocation.data?.address?.city}</ThemedText>
-                <ThemedText style={tw`text-xs`}>
-                  {activeLocation.data?.address?.region && <ThemedText style={[tw`text-xs`, { color: mutedForegroundColor }]}>{activeLocation.data?.address?.region}, </ThemedText>}
-                  {activeLocation.data?.address?.country}
-                </ThemedText>
-              </View>
+          <>
+          {/* HEADER */}
+          <View style={tw`flex flex-col items-center gap-1 w-full p-4`}>
+            {activeLocation.source === 'geolocation' && <ThemedText style={tw`text-xs`}>MY POSITION</ThemedText>}
+            <View style={tw`flex flex-col items-center`}>
+              <ThemedText type="subtitle" style={tw`font-bold`}>{activeLocation.data?.address?.city}</ThemedText>
+              <ThemedText style={tw`text-xs`}>
+                {activeLocation.data?.address?.region && <ThemedText style={[tw`text-xs`, { color: mutedForegroundColor }]}>{activeLocation.data?.address?.region}, </ThemedText>}
+                {activeLocation.data?.address?.country}
+              </ThemedText>
             </View>
-          )}
-          ListEmptyComponent={() => (
-            isLoading ? (
-              <ActivityIndicator style={[tw`p-2`]} />
-            ) : isError ? (
+          </View>
+          {isLoading ? (
+            <ActivityIndicator />
+          ) : meteoWeekly?.length ? (
+            <>
+              <View style={[tw`px-10 py-6 rounded-md`, { paddingRight: 30, backgroundColor: backgroundColor }]}>
+                <LineChart
+                areaChart
+                data={meteoWeekly.map(item => ({
+                  value: item.tempMax!,
+                  date: item.time,
+                }))}
+                data2={meteoWeekly.map(item => ({
+                  value: item.tempMin!,
+                  date: item.time,
+                }))}
+                rotateLabel
+                adjustToWidth
+                color1='#ffb300'
+                color2='#2196f3'
+                thickness={2}
+                startFillColor1='rgba(255, 179, 0, 0.3)'
+                startFillColor2='rgba(33, 150, 243, 0.3)'
+                endFillColor1='rgba(255, 179, 0, 0.01)'
+                endFillColor2='rgba(33, 150, 243, 0.01)'
+                startOpacity1={0.9}
+                startOpacity2={0.9}
+                endOpacity1={0.2}
+                endOpacity2={0.2}
+                initialSpacing={0}
+                endSpacing={0}
+                noOfSections={6}
+                stepHeight={40}
+                maxValue={Math.max(
+                  ...meteoWeekly.map(item => item.tempMax ?? -Infinity),
+                  ...meteoWeekly.map(item => item.tempMin ?? -Infinity)
+                ) + 2}
+                rulesType={ruleTypes.SOLID}
+                rulesColor="gray"
+                yAxisColor="white"
+                yAxisThickness={0}
+                yAxisTextStyle={{color: 'gray', fontSize: 10 }}
+                yAxisLabelSuffix="°C"
+                yAxisTextNumberOfLines={2}
+                // xAxisLabelTextStyle={{
+                //   color: 'gray',
+                //   width: 80,
+                //   marginLeft: -36
+                // }}
+                // yAxisLabelWidth={30}
+                pointerConfig={{
+                    pointerStripHeight: 160,
+                    pointerStripColor: 'lightgray',
+                    pointerStripWidth: 2,
+                    pointerColor: 'lightgray',
+                    radius: 6,
+                    pointerLabelWidth: 100,
+                    pointerLabelHeight: 90,
+                    // activatePointersOnLongPress: true,
+                    autoAdjustPointerLabelPosition: false,
+                    pointerLabelComponent: (item: { date: string, value: number }[]) => {
+                      const date = new Date(item[0].date);
+                      const formattedDate = date.toLocaleDateString([], { month: 'short', day: 'numeric' });
+                      return (
+                        <View
+                          style={{
+                            height: 90,
+                            width: 100,
+                            justifyContent: 'center',
+                            zIndex: 1000,
+                            // marginTop: -30,
+                            // marginLeft: -40,
+                          }}>
+                          <Text
+                            style={{
+                              color: 'white',
+                              fontSize: 14,
+                              marginBottom: 6,
+                              textAlign: 'center',
+                            }}>
+                            {formattedDate}
+                          </Text>
+              
+                          <View
+                            style={{
+                              paddingHorizontal: 14,
+                              paddingVertical: 6,
+                              borderRadius: 16,
+                              backgroundColor: 'white',
+                            }}>
+                            <Text style={{fontWeight: 'bold', textAlign: 'center'}}>
+                              {`${item[0].value.toFixed(0)}°C`}
+                            </Text>
+                          </View>
+                        </View>
+                      );
+                    },
+                  }}
+                  isAnimated
+                  animationDuration={500}
+                  animationEasing={'easeInOut'}
+                />
+              </View>
+              <FlatList
+              data={meteoWeekly}
+              keyExtractor={(item) => item.time}
+              renderItem={({ item, index }) => {
+                const weatherCondition = item.weatherCode !== undefined ? getWeatherCondition(item.weatherCode) : undefined;
+                return (
+                  <TouchableOpacity key={index} onPress={() => console.log(item)}>
+                    <View style={[tw`items-center p-2 rounded-md w-28`, { backgroundColor: backgroundColor }]}>
+                      <ThemedText numberOfLines={1} style={tw`text-xs`}>{new Date(item.time).toLocaleDateString('en-US', { weekday: 'long' })}</ThemedText>
+                      <SymbolView size={24} name={weatherCondition?.icon ?? 'sun.max.fill'} type="multicolor" />
+                      {item.tempMax && (
+                        <View style={tw`flex-row items-center gap-1`}>
+                          <IconSymbol size={16} name="arrow.up" color={textColor} />
+                          <ThemedText style={{ fontSize: 10 }}>{item.tempMax.toFixed(0)}°C</ThemedText>
+                        </View>
+                      )}
+                      {item.tempMin && (
+                        <View style={tw`flex-row items-center gap-1`}>
+                          <IconSymbol size={16} name="arrow.down" color={textColor} />
+                          <ThemedText style={{ fontSize: 10 }}>{item.tempMin.toFixed(0)}°C</ThemedText>
+                        </View>
+                      )}
+                    </View>
+                  </TouchableOpacity>
+                );
+              }}
+              horizontal
+              style={tw`grow-0 pb-4`}
+              contentContainerStyle={tw`gap-4 px-4`}
+              showsHorizontalScrollIndicator={false}
+              />
+            </>
+          ) : isError ? (
               <View style={tw`flex flex-col items-center border border-red-500 rounded p-4 gap-2`}>
                 <View style={tw`flex flex-col items-center`}>
                   <ThemedText style={[{ color: mutedForegroundColor }]}>Error loading weather data</ThemedText>
@@ -93,14 +200,79 @@ export default function WeeklyScreen() {
                   <ThemedText>Retry</ThemedText>
                 </TouchableOpacity>
               </View>
-            ) : (
-              <ThemedText style={[tw`text-center p-2`, { color: mutedForegroundColor }]} >No weather data available for the week</ThemedText>
-            )
+          ) : (
+            <ThemedText style={[tw`text-center`, { color: mutedForegroundColor }]}>No weather data available for today</ThemedText>
           )}
-          />
+          </>
         ) : (
           <ThemedText style={[tw`text-center`, { color: mutedForegroundColor }]}>Select a location</ThemedText>
         )}
+      </ScrollView>
     </SafeAreaView>
   );
+
+  // return (
+  //   <SafeAreaView edges={['left', 'right']} style={tw`flex-1 justify-center items-center gap-4 p-4`}>
+  //       {activeLocation ? (
+  //         <FlatList
+  //         data={meteoWeekly}
+  //         keyExtractor={(item) => item.time}
+  //         renderItem={({ item, index }) => {
+  //           const weatherCondition = item.weatherCode !== undefined ? getWeatherCondition(item.weatherCode) : undefined;
+  //           return (
+  //             <View style={[tw`flex flex-row items-center justify-between w-full px-4 py-2`, index !== meteoWeekly?.length! - 1 && tw`border-b border-gray-200/50`]}>
+  //               <ThemedText>{new Date(item.time).toLocaleDateString('en-US', { weekday: 'long' })}</ThemedText>
+  //               <View style={tw`flex flex-row items-center gap-2`}>
+  //                 {weatherCondition && <SymbolView
+  //                   size={24}
+  //                   name={weatherCondition?.icon}
+  //                   type="multicolor"
+  //                 />}
+  //                 <View style={tw`flex flex-row items-center gap-1`}>
+  //                   <IconSymbol size={16} name="arrow.up" color={textColor} />
+  //                   <ThemedText style={tw`text-sm font-semibold`}>{item.tempMax?.toFixed(0)}°C</ThemedText>
+  //                 </View>
+  //                 <View style={tw`flex flex-row items-center gap-1`}>
+  //                   <IconSymbol size={16} name="arrow.down" color={textColor} />
+  //                   <ThemedText style={tw`text-sm font-semibold`}>{item.tempMin?.toFixed(0)}°C</ThemedText>
+  //                 </View>
+  //               </View>
+  //             </View>
+  //           )
+  //         }}
+  //         ListHeaderComponent={() => (
+  //           <View style={tw`flex flex-col items-center gap-1`}>
+  //             {activeLocation.source === 'geolocation' && <ThemedText style={tw`text-xs`}>MY POSITION</ThemedText>}
+  //             <View style={tw`flex flex-col items-center`}>
+  //               <ThemedText type="subtitle" style={tw`font-bold`}>{activeLocation.data?.address?.city}</ThemedText>
+  //               <ThemedText style={tw`text-xs`}>
+  //                 {activeLocation.data?.address?.region && <ThemedText style={[tw`text-xs`, { color: mutedForegroundColor }]}>{activeLocation.data?.address?.region}, </ThemedText>}
+  //                 {activeLocation.data?.address?.country}
+  //               </ThemedText>
+  //             </View>
+  //           </View>
+  //         )}
+  //         ListEmptyComponent={() => (
+  //           isLoading ? (
+  //             <ActivityIndicator style={[tw`p-2`]} />
+  //           ) : isError ? (
+  //             <View style={tw`flex flex-col items-center border border-red-500 rounded p-4 gap-2`}>
+  //               <View style={tw`flex flex-col items-center`}>
+  //                 <ThemedText style={[{ color: mutedForegroundColor }]}>Error loading weather data</ThemedText>
+  //                 <ThemedText style={[tw`text-xs`, { color: mutedForegroundColor }]}>Please check your internet connection or try again later.</ThemedText>
+  //               </View>
+  //               <TouchableOpacity onPress={() => refetchMeteo()} style={tw`p-2 bg-red-500 rounded-full`}>
+  //                 <ThemedText>Retry</ThemedText>
+  //               </TouchableOpacity>
+  //             </View>
+  //           ) : (
+  //             <ThemedText style={[tw`text-center p-2`, { color: mutedForegroundColor }]} >No weather data available for the week</ThemedText>
+  //           )
+  //         )}
+  //         />
+  //       ) : (
+  //         <ThemedText style={[tw`text-center`, { color: mutedForegroundColor }]}>Select a location</ThemedText>
+  //       )}
+  //   </SafeAreaView>
+  // );
 }
