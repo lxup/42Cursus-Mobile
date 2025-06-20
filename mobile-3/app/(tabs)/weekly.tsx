@@ -1,4 +1,4 @@
-import { ActivityIndicator, FlatList, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, FlatList, ScrollView, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { useLocation } from '@/context/LocationProvider';
 import tw from '@/lib/tw';
@@ -8,10 +8,12 @@ import { useMemo } from 'react';
 import { useMeteo } from '@/queries/open-meteo';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import { IconSymbol } from '@/components/ui/IconSymbol';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LineChart, ruleTypes } from 'react-native-gifted-charts';
 
 export default function WeeklyScreen() {
+  const { width } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
   // Colors
   const backgroundColor = useThemeColor({}, 'background');
   const textColor = useThemeColor({}, 'text');
@@ -39,7 +41,7 @@ export default function WeeklyScreen() {
       );
     });
   }, [meteo]);
-
+  
   return (
     <SafeAreaView edges={['left', 'right']} style={tw`flex-1`}>
       <ScrollView contentContainerStyle={tw`relative min-h-full justify-center items-center gap-4`}>
@@ -60,101 +62,107 @@ export default function WeeklyScreen() {
             <ActivityIndicator />
           ) : meteoWeekly?.length ? (
             <>
-              <View style={[tw`px-10 py-6 rounded-md`, { paddingRight: 30, backgroundColor: backgroundColor }]}>
-                <LineChart
-                areaChart
-                data={meteoWeekly.map(item => ({
-                  value: item.tempMax!,
-                  date: item.time,
-                }))}
-                data2={meteoWeekly.map(item => ({
-                  value: item.tempMin!,
-                  date: item.time,
-                }))}
-                rotateLabel
-                // adjustToWidth
-                color1='#ffb300'
-                color2='#2196f3'
-                thickness={2}
-                startFillColor1='rgba(255, 179, 0, 0.3)'
-                startFillColor2='rgba(33, 150, 243, 0.3)'
-                endFillColor1='rgba(255, 179, 0, 0.01)'
-                endFillColor2='rgba(33, 150, 243, 0.01)'
-                startOpacity1={0.9}
-                startOpacity2={0.9}
-                endOpacity1={0.2}
-                endOpacity2={0.2}
-                initialSpacing={0}
-                endSpacing={0}
-                noOfSections={6}
-                stepHeight={40}
-                maxValue={Math.max(
-                  ...meteoWeekly.map(item => item.tempMax ?? -Infinity),
-                  ...meteoWeekly.map(item => item.tempMin ?? -Infinity)
-                ) + 2}
-                rulesType={ruleTypes.SOLID}
-                rulesColor="gray"
-                yAxisColor="white"
-                yAxisThickness={0}
-                yAxisTextStyle={{color: 'gray', fontSize: 10 }}
-                yAxisLabelSuffix="°C"
-                yAxisTextNumberOfLines={2}
-                // xAxisLabelTextStyle={{
-                //   color: 'gray',
-                //   width: 80,
-                //   marginLeft: -36
-                // }}
-                // yAxisLabelWidth={30}
-                pointerConfig={{
-                    pointerStripHeight: 160,
-                    pointerStripColor: 'lightgray',
-                    pointerStripWidth: 2,
-                    pointerColor: 'lightgray',
-                    radius: 6,
-                    pointerLabelWidth: 100,
-                    pointerLabelHeight: 90,
-                    autoAdjustPointerLabelPosition: false,
-                    pointerLabelComponent: (item: { date: string, value: number }[]) => {
-                      const date = new Date(item[0].date);
-                      const formattedDate = date.toLocaleDateString([], { month: 'short', day: 'numeric' });
-                      return (
-                        <View
-                          style={{
-                            height: 90,
-                            width: 100,
-                            justifyContent: 'center',
-                            zIndex: 1000,
-                          }}>
-                          <Text
-                            style={{
-                              color: 'white',
-                              fontSize: 14,
-                              marginBottom: 6,
-                              textAlign: 'center',
-                            }}>
-                            {formattedDate}
-                          </Text>
-              
+             <View style={tw`px-4 w-full`}>
+                <View style={[tw`p-4 rounded-md`, { paddingRight: 30, backgroundColor: backgroundColor }]}>
+                  <LineChart
+                  areaChart
+                  data={meteoWeekly.map(item => ({
+                    value: item.tempMax!,
+                    date: item.time,
+                  }))}
+                  data2={meteoWeekly.map(item => ({
+                    value: item.tempMin!,
+                    date: item.time,
+                  }))}
+                  rotateLabel
+                  adjustToWidth
+                  width={width - 124 - insets.left - insets.right}
+                  color1='#ffb300'
+                  color2='#2196f3'
+                  thickness={2}
+                  startFillColor1='rgba(255, 179, 0, 0.3)'
+                  startFillColor2='rgba(33, 150, 243, 0.3)'
+                  endFillColor1='rgba(255, 179, 0, 0.01)'
+                  endFillColor2='rgba(33, 150, 243, 0.01)'
+                  startOpacity1={0.9}
+                  startOpacity2={0.9}
+                  endOpacity1={0.2}
+                  endOpacity2={0.2}
+                  initialSpacing={0}
+                  endSpacing={0}
+                  noOfSections={6}
+                  stepHeight={40}
+                  maxValue={Math.max(
+                    ...meteoWeekly.map(item => item.tempMax ?? -Infinity),
+                    ...meteoWeekly.map(item => item.tempMin ?? -Infinity)
+                  ) + 2}
+                  rulesType={ruleTypes.SOLID}
+                  rulesColor="gray"
+                  yAxisColor="white"
+                  yAxisThickness={0}
+                  yAxisTextStyle={{color: 'gray', fontSize: 10 }}
+                  yAxisLabelSuffix="°C"
+                  yAxisTextNumberOfLines={2}
+                  xAxisLabelTexts={meteoWeekly.map(item => {
+                    const date = new Date(item.time);
+                    return date.toLocaleDateString([], { month: '2-digit', day: '2-digit' }); 
+                  })}
+                  xAxisColor={'white'}
+                  xAxisIndicesColor="lightgray"
+                  xAxisLabelTextStyle={{
+                    fontSize: 10,
+                    color: 'gray',
+                  }}
+                  pointerConfig={{
+                      pointerStripHeight: 160,
+                      pointerStripColor: 'lightgray',
+                      pointerStripWidth: 2,
+                      pointerColor: 'lightgray',
+                      radius: 6,
+                      pointerLabelWidth: 100,
+                      pointerLabelHeight: 90,
+                      autoAdjustPointerLabelPosition: false,
+                      pointerLabelComponent: (item: { date: string, value: number }[]) => {
+                        const date = new Date(item[0].date);
+                        const formattedDate = date.toLocaleDateString([], { month: 'short', day: 'numeric' });
+                        return (
                           <View
                             style={{
-                              paddingHorizontal: 14,
-                              paddingVertical: 6,
-                              borderRadius: 16,
-                              backgroundColor: 'white',
+                              height: 90,
+                              width: 100,
+                              justifyContent: 'center',
+                              zIndex: 1000,
                             }}>
-                            <Text style={{fontWeight: 'bold', textAlign: 'center'}}>
-                              {`${item[0].value.toFixed(0)}°C`}
+                            <Text
+                              style={{
+                                color: 'white',
+                                fontSize: 14,
+                                marginBottom: 6,
+                                textAlign: 'center',
+                              }}>
+                              {formattedDate}
                             </Text>
+                
+                            <View
+                              style={{
+                                paddingHorizontal: 14,
+                                paddingVertical: 6,
+                                borderRadius: 16,
+                                backgroundColor: 'white',
+                              }}>
+                              <Text style={{fontWeight: 'bold', textAlign: 'center'}}>
+                                {`${item[0].value.toFixed(0)}°C`}
+                              </Text>
+                            </View>
                           </View>
-                        </View>
-                      );
-                    },
+                        );
+                      },
                   }}
                   isAnimated
                   animationDuration={500}
                   animationEasing={'easeInOut'}
-                  
-                />
+                  />
+                </View>
               </View>
               <FlatList
               data={meteoWeekly}
