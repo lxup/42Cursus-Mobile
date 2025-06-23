@@ -10,6 +10,8 @@ import { useMemo } from 'react';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LineChart, ruleTypes } from 'react-native-gifted-charts';
 
+const COLD_THRESHOLD = 10;
+
 export default function TodayScreen() {
   const { width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
@@ -86,9 +88,9 @@ export default function TodayScreen() {
                   rotateLabel
                   adjustToWidth
                   width={width - 124 - insets.left - insets.right}
-                  color={maxTempToday > 20 ? '#ffb300' : '#2196f3'}
-                  startFillColor={maxTempToday > 20 ? 'rgba(105, 75, 20, 0.3)' : 'rgba(33, 150, 243, 0.3)'}
-                  endFillColor={maxTempToday > 20 ? 'rgba(85, 67, 20, 0.01)' : 'rgba(33, 150, 243, 0.01)'}
+                  color={maxTempToday > COLD_THRESHOLD ? '#ffb300' : '#2196f3'}
+                  startFillColor={maxTempToday > COLD_THRESHOLD ? 'rgba(105, 75, 20, 0.3)' : 'rgba(33, 150, 243, 0.3)'}
+                  endFillColor={maxTempToday > COLD_THRESHOLD ? 'rgba(85, 67, 20, 0.01)' : 'rgba(33, 150, 243, 0.01)'}
                   thickness={2}
                   startOpacity={0.9}
                   endOpacity={0.2}
