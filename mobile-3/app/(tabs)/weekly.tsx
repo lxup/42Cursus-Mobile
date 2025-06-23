@@ -41,6 +41,23 @@ export default function WeeklyScreen() {
       );
     });
   }, [meteo]);
+  // const maxTempWeekly = useMemo(() => {
+  //   if (!meteoWeekly?.length) return -Infinity;
+  //   return meteoWeekly.reduce((max, item) => Math.max(max, item.tempMax ?? -Infinity), -Infinity);
+  // }, [meteoWeekly]);
+  const [minTempWeekly, maxTempWeekly] = useMemo(() => {
+    if (!meteoWeekly?.length) return [-Infinity, -Infinity];
+    const temps = meteoWeekly.flatMap(item => [item.tempMax ?? -Infinity, item.tempMin ?? -Infinity]);
+    const min = Math.min(...temps);
+    const max = Math.max(...temps);
+    return [min, max];
+  }, [meteoWeekly]);
+  const chartMaxValue = useMemo(() => {
+    if (maxTempWeekly < 0) {
+      return minTempWeekly - 2;
+    }
+    return maxTempWeekly + 2;
+  }, [maxTempWeekly, minTempWeekly]);
   
   return (
     <SafeAreaView edges={['left', 'right']} style={tw`flex-1`}>
@@ -65,6 +82,7 @@ export default function WeeklyScreen() {
              <View style={tw`px-4 w-full`}>
                 <View style={[tw`p-4 rounded-md`, { paddingRight: 30, backgroundColor: backgroundColor }]}>
                   <LineChart
+                  key={`weekly-chart-${width}-${insets.left}-${insets.right}`}
                   areaChart
                   data={meteoWeekly.map(item => ({
                     value: item.tempMax!,
@@ -92,10 +110,7 @@ export default function WeeklyScreen() {
                   endSpacing={0}
                   noOfSections={6}
                   stepHeight={40}
-                  maxValue={Math.max(
-                    ...meteoWeekly.map(item => item.tempMax ?? -Infinity),
-                    ...meteoWeekly.map(item => item.tempMin ?? -Infinity)
-                  ) + 2}
+                  maxValue={chartMaxValue}
                   rulesType={ruleTypes.SOLID}
                   rulesColor="gray"
                   yAxisColor="white"
@@ -121,7 +136,8 @@ export default function WeeklyScreen() {
                       radius: 6,
                       pointerLabelWidth: 100,
                       pointerLabelHeight: 90,
-                      autoAdjustPointerLabelPosition: false,
+                      persistPointer: true,
+                      autoAdjustPointerLabelPosition: true,
                       pointerLabelComponent: (item: { date: string, value: number }[]) => {
                         const date = new Date(item[0].date);
                         const formattedDate = date.toLocaleDateString([], { month: 'short', day: 'numeric' });
@@ -170,24 +186,22 @@ export default function WeeklyScreen() {
               renderItem={({ item, index }) => {
                 const weatherCondition = item.weatherCode !== undefined ? getWeatherCondition(item.weatherCode) : undefined;
                 return (
-                  <TouchableOpacity key={index} onPress={() => console.log(item)}>
-                    <View style={[tw`items-center p-2 rounded-md w-28`, { backgroundColor: backgroundColor }]}>
-                      <ThemedText numberOfLines={1} style={tw`text-xs`}>{new Date(item.time).toLocaleDateString('en-US', { weekday: 'long' })}</ThemedText>
-                      <SymbolView size={24} name={weatherCondition?.icon ?? 'sun.max.fill'} type="multicolor" />
-                      {item.tempMax && (
-                        <View style={tw`flex-row items-center gap-1`}>
-                          <IconSymbol size={12} name="arrow.up" color={textColor} />
-                          <ThemedText style={{ fontSize: 10 }}>{item.tempMax.toFixed(0)}°C</ThemedText>
-                        </View>
-                      )}
-                      {item.tempMin && (
-                        <View style={tw`flex-row items-center gap-1`}>
-                          <IconSymbol size={12} name="arrow.down" color={textColor} />
-                          <ThemedText style={{ fontSize: 10 }}>{item.tempMin.toFixed(0)}°C</ThemedText>
-                        </View>
-                      )}
-                    </View>
-                  </TouchableOpacity>
+                  <View key={index} style={[tw`items-center p-2 rounded-md w-28`, { backgroundColor: backgroundColor }]}>
+                    <ThemedText numberOfLines={1} style={tw`text-xs`}>{new Date(item.time).toLocaleDateString('en-US', { weekday: 'long' })}</ThemedText>
+                    <SymbolView size={24} name={weatherCondition?.icon ?? 'sun.max.fill'} type="multicolor" />
+                    {item.tempMax && (
+                      <View style={tw`flex-row items-center gap-1`}>
+                        <IconSymbol size={12} name="arrow.up" color={textColor} />
+                        <ThemedText style={{ fontSize: 10 }}>{item.tempMax.toFixed(0)}°C</ThemedText>
+                      </View>
+                    )}
+                    {item.tempMin && (
+                      <View style={tw`flex-row items-center gap-1`}>
+                        <IconSymbol size={12} name="arrow.down" color={textColor} />
+                        <ThemedText style={{ fontSize: 10 }}>{item.tempMin.toFixed(0)}°C</ThemedText>
+                      </View>
+                    )}
+                  </View>
                 );
               }}
               horizontal

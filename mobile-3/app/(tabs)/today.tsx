@@ -37,6 +37,19 @@ export default function TodayScreen() {
              itemDate.getFullYear() === today.getFullYear();
     });
   }, [meteo]);
+  const [minTempToday, maxTempToday] = useMemo(() => {
+    if (!meteoToday?.length) return [-Infinity, -Infinity];
+    const temps = meteoToday.map(item => item.temp!);
+    const min = Math.min(...temps);
+    const max = Math.max(...temps);
+    return [min, max];
+  }, [meteoToday]);
+  const chartMaxValue = useMemo(() => {
+    if (maxTempToday < 0) {
+      return minTempToday - 2;
+    }
+    return maxTempToday + 2;
+  }, [maxTempToday, minTempToday]);
 
   return (
     <SafeAreaView edges={['left', 'right']} style={tw`flex-1`}>
@@ -61,6 +74,7 @@ export default function TodayScreen() {
               <View style={tw`px-4 w-full`}>
                 <View style={[tw`p-4 rounded-md`, { paddingRight: 30, backgroundColor: backgroundColor }]}>
                   <LineChart
+                  key={`today-chart-${width}-${insets.left}-${insets.right}`}
                   areaChart
                   data={meteoToday.map((item, index) => ({
                     value: item.temp!,
@@ -72,17 +86,17 @@ export default function TodayScreen() {
                   rotateLabel
                   adjustToWidth
                   width={width - 124 - insets.left - insets.right}
-                  color="#ffb300"
+                  color={maxTempToday > 20 ? '#ffb300' : '#2196f3'}
+                  startFillColor={maxTempToday > 20 ? 'rgba(105, 75, 20, 0.3)' : 'rgba(33, 150, 243, 0.3)'}
+                  endFillColor={maxTempToday > 20 ? 'rgba(85, 67, 20, 0.01)' : 'rgba(33, 150, 243, 0.01)'}
                   thickness={2}
-                  startFillColor="rgba(105, 75, 20, 0.3)"
-                  endFillColor="rgba(85, 67, 20, 0.01)"
                   startOpacity={0.9}
                   endOpacity={0.2}
                   initialSpacing={0}
                   endSpacing={0}
                   noOfSections={6}
                   stepHeight={40}
-                  maxValue={meteoToday.reduce((max, item) => Math.max(max, item.temp!), 0) + 2}
+                  maxValue={chartMaxValue}
                   rulesType={ruleTypes.SOLID}
                   rulesColor="gray"
                   yAxisColor="white"
@@ -108,8 +122,8 @@ export default function TodayScreen() {
                     radius: 6,
                     pointerLabelWidth: 100,
                     pointerLabelHeight: 90,
-                    // activatePointersOnLongPress: true,
-                    autoAdjustPointerLabelPosition: false,
+                    persistPointer: true,
+                    autoAdjustPointerLabelPosition: true,
                     pointerLabelComponent: (item: { date: string, value: number }[]) => {
                       const date = new Date(item[0].date);
                       const formattedDate = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -160,19 +174,17 @@ export default function TodayScreen() {
               renderItem={({ item, index }) => {
                 const weatherCondition = item.weatherCode !== undefined ? getWeatherCondition(item.weatherCode) : undefined;
                 return (
-                  <TouchableOpacity key={index} onPress={() => console.log(item)}>
-                    <View style={[tw`items-center p-2 rounded-md`, { backgroundColor: backgroundColor }]}>
-                      <ThemedText style={tw`text-xs`}>{`${new Date(item.time).toLocaleTimeString([], { hour: '2-digit' })} h`}</ThemedText>
-                      <SymbolView size={24} name={weatherCondition?.icon ?? 'sun.max.fill'} type="multicolor" />
-                      <ThemedText style={tw`font-semibold`}>{item.temp?.toFixed(0)}°C</ThemedText>
-                      {item.windSpeed && (
-                        <View style={tw`flex-row items-center gap-1 justify-center`}>
-                          <SymbolView size={16} name="wind" type="multicolor" />
-                          <ThemedText style={{ fontSize: 10 }}>{item.windSpeed.toFixed(0)} km/h</ThemedText>
-                        </View>
-                      )}
-                    </View>
-                  </TouchableOpacity>
+                  <View key={index} style={[tw`items-center p-2 rounded-md`, { backgroundColor: backgroundColor }]}>
+                    <ThemedText style={tw`text-xs`}>{`${new Date(item.time).toLocaleTimeString([], { hour: '2-digit' })} h`}</ThemedText>
+                    <SymbolView size={24} name={weatherCondition?.icon ?? 'sun.max.fill'} type="multicolor" />
+                    <ThemedText style={tw`font-semibold`}>{item.temp?.toFixed(0)}°C</ThemedText>
+                    {item.windSpeed && (
+                      <View style={tw`flex-row items-center gap-1 justify-center`}>
+                        <SymbolView size={16} name="wind" type="multicolor" />
+                        <ThemedText style={{ fontSize: 10 }}>{item.windSpeed.toFixed(0)} km/h</ThemedText>
+                      </View>
+                    )}
+                  </View>
                 );
               }}
               horizontal
