@@ -129,50 +129,52 @@ export default function WeeklyScreen() {
                     color: 'gray',
                   }}
                   pointerConfig={{
-                      pointerStripHeight: 160,
-                      pointerStripColor: 'lightgray',
-                      pointerStripWidth: 2,
-                      pointerColor: 'lightgray',
-                      radius: 6,
-                      pointerLabelWidth: 100,
-                      pointerLabelHeight: 90,
-                      persistPointer: true,
-                      autoAdjustPointerLabelPosition: true,
-                      pointerLabelComponent: (item: { date: string, value: number }[]) => {
-                        const date = new Date(item[0].date);
-                        const formattedDate = date.toLocaleDateString([], { month: 'short', day: 'numeric' });
-                        return (
+                    pointerStripHeight: 160,
+                    pointerStripColor: 'lightgray',
+                    pointerStripWidth: 2,
+                    pointerColor: 'lightgray',
+                    radius: 6,
+                    pointerLabelWidth: 100,
+                    pointerLabelHeight: 90,
+                    persistPointer: true,
+                    autoAdjustPointerLabelPosition: true,
+                    pointerLabelComponent: (item: { date: string, value: number }[]) => {
+                      const date = new Date(item[0].date);
+                      const formattedDate = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                      return (
+                        <View
+                          style={{
+                            height: 90,
+                            width: 100,
+                            justifyContent: 'center',
+                            zIndex: 1000,
+                            // marginTop: -30,
+                            // marginLeft: -40,
+                          }}>
+                          <Text
+                            style={{
+                              color: 'white',
+                              fontSize: 14,
+                              marginBottom: 6,
+                              textAlign: 'center',
+                            }}>
+                            {formattedDate}
+                          </Text>
+              
                           <View
                             style={{
-                              height: 90,
-                              width: 100,
-                              justifyContent: 'center',
-                              zIndex: 1000,
+                              paddingHorizontal: 14,
+                              paddingVertical: 6,
+                              borderRadius: 16,
+                              backgroundColor: 'white',
                             }}>
-                            <Text
-                              style={{
-                                color: 'white',
-                                fontSize: 14,
-                                marginBottom: 6,
-                                textAlign: 'center',
-                              }}>
-                              {formattedDate}
+                            <Text style={{fontWeight: 'bold', textAlign: 'center'}}>
+                              {`${item[0].value.toFixed(0)}°C`}
                             </Text>
-                
-                            <View
-                              style={{
-                                paddingHorizontal: 14,
-                                paddingVertical: 6,
-                                borderRadius: 16,
-                                backgroundColor: 'white',
-                              }}>
-                              <Text style={{fontWeight: 'bold', textAlign: 'center'}}>
-                                {`${item[0].value.toFixed(0)}°C`}
-                              </Text>
-                            </View>
                           </View>
-                        );
-                      },
+                        </View>
+                      );
+                    },
                   }}
                   isAnimated
                   animationDuration={500}
