@@ -28,7 +28,7 @@ const ProtectedLayout = () => {
 				name="signin"
 				options={{
 					presentation: 'modal',
-          animation: 'default'
+          animation: 'default',
 				}}
 			/>
     </Stack>

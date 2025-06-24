@@ -32,7 +32,7 @@ const Welcome = () => {
 		opacity: 0.2,
 	}}
 	>
-		<SafeAreaView style={tw`flex-1 items-center justify-end gap-2 px-4`}>
+		<SafeAreaView style={tw`flex-1 items-center justify-end gap-8 px-4`}>
 			<ThemedText type="title">Welcome to Journal</ThemedText>
 			<View style={tw`gap-2 w-full`}>
 				{features.map((feature, index) => (
