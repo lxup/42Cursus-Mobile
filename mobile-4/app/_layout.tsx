@@ -9,9 +9,33 @@ import { useEffect } from 'react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import queryClient from '@/lib/react-query';
 import { SupabaseProvider } from '@/context/SupabaseProvider';
-import { AuthProvider } from '@/context/AuthProvider';
+import { AuthProvider, useAuth } from '@/context/AuthProvider';
 
-export default function RootLayout() {
+const ProtectedLayout = () => {
+  const { session } = useAuth();
+  return (
+    <Stack
+      screenOptions={{
+        headerShown: false,
+        animation: 'fade',
+      }}
+    >
+      <Stack.Protected guard={!!session}>
+        <Stack.Screen name="(tabs)" />
+      </Stack.Protected>
+      <Stack.Screen name="welcome" />
+      <Stack.Screen
+				name="signin"
+				options={{
+					presentation: 'modal',
+          animation: 'default'
+				}}
+			/>
+    </Stack>
+  );
+};
+
+const RootLayout = () => {
   const colorScheme = useColorScheme();
   const [loaded] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
@@ -34,21 +58,13 @@ export default function RootLayout() {
       <SupabaseProvider>
         <QueryClientProvider client={queryClient}>
           <AuthProvider>
-            <Stack
-              screenOptions={{
-                headerShown: false,
-                animation: 'fade',
-              }}
-            >
-              <Stack.Protected guard={false}>
-                <Stack.Screen name="(tabs)" />
-              </Stack.Protected>
-              <Stack.Screen name="signin" />
-            </Stack>
+            <ProtectedLayout />
             <StatusBar style="auto" />
           </AuthProvider>
         </QueryClientProvider>
       </SupabaseProvider>
     </ThemeProvider>
   );
-}
+};
+
+export default RootLayout;
