@@ -1,10 +1,12 @@
 import BottomSheetSignIn from "@/components/BottomSheets/sheets/BottomSheetSignIn";
 import { ThemedText } from "@/components/ThemedText";
 import { IconSymbol } from "@/components/ui/IconSymbol";
+import { useAuth } from "@/context/AuthProvider";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import tw from "@/lib/tw";
 import useBottomSheetStore from "@/stores/useBottomSheetStore";
 import { Button } from "@react-navigation/elements";
+import { Redirect } from "expo-router";
 import { SFSymbol } from "expo-symbols";
 import { useMemo } from "react";
 import { ImageBackground, View } from "react-native";
@@ -16,6 +18,7 @@ type Feature = {
 }
 
 const Welcome = () => {
+	const { session } = useAuth();
 	const { openSheet } = useBottomSheetStore();
 	const accentColor = useThemeColor({}, 'accent');
 	const features: Feature[] = useMemo(() => [
@@ -24,6 +27,7 @@ const Welcome = () => {
 			description: "Write about your day, your thoughts, and your feelings.",
 		}
 	], []);
+	if (session) return <Redirect href={"/(tabs)"} />;
 	return (
 	<ImageBackground
 	source={require("@/assets/images/background/sunny.jpg")}

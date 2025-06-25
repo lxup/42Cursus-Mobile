@@ -14,6 +14,7 @@ import { BottomSheetManager } from '@/components/BottomSheets/BottomSheetManager
 
 const ProtectedLayout = () => {
   const { session } = useAuth();
+  if (session === undefined) return null; // Wait for session to be defined
   return (
     <Stack
       screenOptions={{

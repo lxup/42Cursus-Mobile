@@ -10,7 +10,7 @@ SplashScreen.preventAutoHideAsync();
 type AuthContextProps = {
 	session: Session | null | undefined;
 	user: User | null | undefined;
-	login: (params: { provider: Provider }) => Promise<void>;
+	login: (params: { provider: Provider }) => Promise<{ provider: Provider; url: string } | null>;
 	logout: () => Promise<void>;
 };
 
@@ -36,25 +36,30 @@ const AuthProvider = ({children }: AuthProviderProps) => {
 				redirectTo: "exp://localhost:19006/signin",
 			},
 		});
-		console.log("Login data:", data);
-		console.log("Login error:", error);
 		if (error) throw error;
+		return data;
 	}, []);
 	
 	const logout = useCallback(async () => {
-		await supabase.auth.signOut();
+		const { error } = await supabase.auth.signOut();
+		if (error) throw error;
 	}, []);
 
 	useEffect(() => {
 		supabase.auth.getSession().then(({data: { session }}) => {
 			setSession(session);
-			SplashScreen.hide();
 		});
 
 		supabase.auth.onAuthStateChange((_event, session) => {
 			setSession(session);
 		});
 	}, []);
+
+	useEffect(() => {
+		if (session !== undefined) {
+			SplashScreen.hide();
+		}
+	}, [session]);
 
 	return (
 		<AuthContext.Provider
