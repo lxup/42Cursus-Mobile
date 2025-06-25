@@ -1,20 +1,14 @@
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import tw from '@/lib/tw';
 import { TouchableOpacity, View } from 'react-native';
 import { TrueSheet } from '@lodev09/react-native-true-sheet';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ThemedText } from '../../ThemedText';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import { Image } from 'expo-image';
 import useBottomSheetStore from '@/stores/useBottomSheetStore';
 import { useAuth } from '@/context/AuthProvider';
 import { Provider } from "@supabase/supabase-js";
-import {
-	GoogleSignin,
-	GoogleSigninButton,
-	statusCodes
-} from '@react-native-google-signin/google-signin';
-import { useSupabaseClient } from '@/context/SupabaseProvider';
+import { useTheme } from '@/context/ThemeProvider';
 
 interface BottomSheetSignInProps extends Omit<React.ComponentPropsWithoutRef<typeof TrueSheet>, 'children'> {
 	id: string;
@@ -30,15 +24,11 @@ const BottomSheetSignIn = React.forwardRef<
 	React.ComponentRef<typeof TrueSheet>,
 	BottomSheetSignInProps
 >(({ id, ...props }, ref) => {
-	const supabase = useSupabaseClient();
 	const { closeSheet } = useBottomSheetStore();
 	const { session, login } = useAuth();
-	const inset = useSafeAreaInsets();
+	const { inset } = useTheme();
 	const mutedColor = useThemeColor({}, 'muted');
-	GoogleSignin.configure({
-		scopes: ["https://www.googleapis.com/auth/drive.readonly"],
-		iosClientId: process.env.EXPO_PUBLIC_IOS_CLIENT_ID,
-	})
+	
 	// States
 	const providers: Providers = useMemo(() => [
 		{
@@ -55,36 +45,18 @@ const BottomSheetSignIn = React.forwardRef<
 	// Handlers
 	const handleProviderPress = async (provider: Provider) => {
 		try {
-			console.log(`Connecting with ${provider}`);
 			await login({
 				provider: provider
 			});
 			closeSheet(id);
 		} catch (error) {
-			console.error(`Error connecting with ${provider}:`, error);
+			if (error instanceof Error) {
+				console.error(`Error during ${provider} login:`, error.message);
+			} else {
+				console.error(`Unexpected error during ${provider} login:`, error);
+			}
 		}
 	}
-	const handleGoogleSignIn = useCallback(async () => {
-		try {
-			await GoogleSignin.hasPlayServices();
-			const userInfo = await GoogleSignin.signIn();
-			if (!userInfo.data?.idToken) {
-				throw new Error('No ID token received');
-			}
-			const { error } = await supabase.auth.signInWithIdToken({
-				provider: 'google',
-				token: userInfo.data.idToken,
-			});
-			if (error) throw error;
-		} catch (error: any) {
-			if (error.code === statusCodes.SIGN_IN_CANCELLED) {
-			} else if (error.code === statusCodes.IN_PROGRESS) {
-			} else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-			} else {
-				console.error('Google Sign-In error:', error);
-			}
-		}
-	}, [supabase.auth]);
 
 	useEffect(() => {
 		if (session) {
@@ -110,11 +82,11 @@ const BottomSheetSignIn = React.forwardRef<
 		>
 			<ThemedText>Connect with</ThemedText>
 			<View style={tw`items-center justify-center gap-2`}>
-				<GoogleSigninButton
+				{/* <GoogleSigninButton
 				size={GoogleSigninButton.Size.Wide}
 				color={GoogleSigninButton.Color.Light}
 				onPress={handleGoogleSignIn}
-				/>
+				/> */}
 				{providers.map((provider, index) => (
 					<TouchableOpacity key={index} onPress={() => handleProviderPress(provider.name)} style={[tw`flex-row items-center border-2 overflow-hidden rounded-full w-full px-4 py-1 gap-2`, { borderColor: mutedColor }]}>
 						<Image source={provider.path} style={tw`h-8 w-8 bg-red-500`} contentFit="cover" />

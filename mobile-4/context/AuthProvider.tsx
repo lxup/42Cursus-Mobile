@@ -4,13 +4,14 @@ import { SplashScreen } from "expo-router";
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { useSupabaseClient } from "./SupabaseProvider";
 import { useUserQuery } from "@/queries/user/userQueries";
+import { GoogleSignin } from "@react-native-google-signin/google-signin";
 
 SplashScreen.preventAutoHideAsync();
 
 type AuthContextProps = {
 	session: Session | null | undefined;
 	user: User | null | undefined;
-	login: (params: { provider: Provider }) => Promise<{ provider: Provider; url: string } | null>;
+	login: (params: { provider: Provider }) => Promise<void>;
 	logout: () => Promise<void>;
 };
 
@@ -30,14 +31,26 @@ const AuthProvider = ({children }: AuthProviderProps) => {
 	});
 	
 	const login = useCallback(async ({ provider }: { provider: Provider }) => {
-		const { data, error } = await supabase.auth.signInWithOAuth({
-			provider: provider,
-			options: {
-				redirectTo: "exp://localhost:19006/signin",
-			},
-		});
-		if (error) throw error;
-		return data;
+		switch (provider) {
+			case "google":
+				GoogleSignin.configure({
+					scopes: ["https://www.googleapis.com/auth/drive.readonly"],
+					iosClientId: process.env.EXPO_PUBLIC_IOS_CLIENT_ID,
+				})
+				await GoogleSignin.hasPlayServices();
+				const userInfo = await GoogleSignin.signIn();
+				if (!userInfo.data?.idToken) {
+					throw new Error('No ID token received');
+				}
+				const { error } = await supabase.auth.signInWithIdToken({
+					provider: 'google',
+					token: userInfo.data.idToken,
+				});
+				if (error) throw error;
+				break;
+			default:
+				throw new Error(`Unsupported provider -> ${provider}`);
+		}
 	}, []);
 	
 	const logout = useCallback(async () => {

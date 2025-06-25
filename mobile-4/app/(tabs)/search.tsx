@@ -1,13 +1,12 @@
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { IconSymbol } from "@/components/ui/IconSymbol";
+import { useTheme } from "@/context/ThemeProvider";
 import useDebounce from "@/hooks/useDebounce";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import tw from "@/lib/tw";
 import { useCallback, useState } from "react";
 import { TextInput, TouchableOpacity, View } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-
 
 const Search = () => {
   // Colors
@@ -15,7 +14,7 @@ const Search = () => {
   const mutedColor = useThemeColor({}, 'muted');
   const mutedForegroundColor = useThemeColor({}, 'mutedForeground');
 
-  const inset = useSafeAreaInsets();
+  const { inset } = useTheme();
   const [search, setSearch] = useState<string>("");
   const debouncedSearch = useDebounce(search, 500);
 

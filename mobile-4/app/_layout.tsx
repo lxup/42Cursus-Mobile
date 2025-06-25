@@ -10,6 +10,7 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import queryClient from '@/lib/react-query';
 import { SupabaseProvider } from '@/context/SupabaseProvider';
 import { AuthProvider, useAuth } from '@/context/AuthProvider';
+import { ThemeProvider as CustomThemeProvider } from '@/context/ThemeProvider';
 import { BottomSheetManager } from '@/components/BottomSheets/BottomSheetManager';
 
 const ProtectedLayout = () => {
@@ -50,15 +51,17 @@ const RootLayout = () => {
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <SupabaseProvider>
-        <QueryClientProvider client={queryClient}>
-          <AuthProvider>
-            <ProtectedLayout />
-            <BottomSheetManager />
-            <StatusBar style="auto" />
-          </AuthProvider>
-        </QueryClientProvider>
-      </SupabaseProvider>
+      <CustomThemeProvider>
+        <SupabaseProvider>
+          <QueryClientProvider client={queryClient}>
+            <AuthProvider>
+              <ProtectedLayout />
+              <BottomSheetManager />
+              <StatusBar style="auto" />
+            </AuthProvider>
+          </QueryClientProvider>
+        </SupabaseProvider>
+      </CustomThemeProvider>
     </ThemeProvider>
   );
 };
