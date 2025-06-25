@@ -10,9 +10,9 @@ export const BottomSheetManager = () => {
 
   React.useEffect(() => {
     const unsubscribe = navigation.addListener('state', () => {
-      sheets.forEach(async (sheet) => {
+      sheets.forEach((sheet) => {
         if (!sheet.persistent && sheet.ref?.current) {
-          await closeSheet(sheet.id);
+          closeSheet(sheet.id);
         }
       });
     });

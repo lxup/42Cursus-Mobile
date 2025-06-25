@@ -1,7 +1,7 @@
 import { User } from "@/types/type.db";
 import { Provider, Session } from "@supabase/supabase-js";
 import { SplashScreen } from "expo-router";
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { useSupabaseClient } from "./SupabaseProvider";
 import { useUserQuery } from "@/queries/user/userQueries";
 
@@ -28,6 +28,22 @@ const AuthProvider = ({children }: AuthProviderProps) => {
 	} = useUserQuery({
 		userId: session?.user.id,
 	});
+	
+	const login = useCallback(async ({ provider }: { provider: Provider }) => {
+		const { data, error } = await supabase.auth.signInWithOAuth({
+			provider: provider,
+			options: {
+				redirectTo: "exp://localhost:19006/signin",
+			},
+		});
+		console.log("Login data:", data);
+		console.log("Login error:", error);
+		if (error) throw error;
+	}, []);
+	
+	const logout = useCallback(async () => {
+		await supabase.auth.signOut();
+	}, []);
 
 	useEffect(() => {
 		supabase.auth.getSession().then(({data: { session }}) => {
@@ -39,21 +55,6 @@ const AuthProvider = ({children }: AuthProviderProps) => {
 			setSession(session);
 		});
 	}, []);
-
-	const login = async ({ provider }: { provider: Provider }) => {
-		const { error } = await supabase.auth.signInWithOAuth({
-			provider: provider,
-			options: {
-				redirectTo: "exp://localhost:19006/signin",
-			},
-		});
-		if (error) throw error;
-	};
-
-	const logout = async () => {
-		await supabase.auth.signOut();
-	};
-
 
 	return (
 		<AuthContext.Provider
