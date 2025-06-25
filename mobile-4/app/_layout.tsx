@@ -10,6 +10,7 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import queryClient from '@/lib/react-query';
 import { SupabaseProvider } from '@/context/SupabaseProvider';
 import { AuthProvider, useAuth } from '@/context/AuthProvider';
+import { BottomSheetManager } from '@/components/BottomSheets/BottomSheetManager';
 
 const ProtectedLayout = () => {
   const { session } = useAuth();
@@ -24,13 +25,6 @@ const ProtectedLayout = () => {
         <Stack.Screen name="(tabs)" />
       </Stack.Protected>
       <Stack.Screen name="welcome" />
-      <Stack.Screen
-				name="signin"
-				options={{
-					presentation: 'modal',
-          animation: 'default',
-				}}
-			/>
     </Stack>
   );
 };
@@ -59,6 +53,7 @@ const RootLayout = () => {
         <QueryClientProvider client={queryClient}>
           <AuthProvider>
             <ProtectedLayout />
+            <BottomSheetManager />
             <StatusBar style="auto" />
           </AuthProvider>
         </QueryClientProvider>

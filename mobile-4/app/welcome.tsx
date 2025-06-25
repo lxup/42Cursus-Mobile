@@ -1,9 +1,10 @@
+import BottomSheetSignIn from "@/components/BottomSheets/sheets/BottomSheetSignIn";
 import { ThemedText } from "@/components/ThemedText";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import tw from "@/lib/tw";
+import useBottomSheetStore from "@/stores/useBottomSheetStore";
 import { Button } from "@react-navigation/elements";
-import { Link } from "expo-router";
 import { SFSymbol } from "expo-symbols";
 import { useMemo } from "react";
 import { ImageBackground, View } from "react-native";
@@ -15,6 +16,7 @@ type Feature = {
 }
 
 const Welcome = () => {
+	const { openSheet } = useBottomSheetStore();
 	const accentColor = useThemeColor({}, 'accent');
 	const features: Feature[] = useMemo(() => [
 		{
@@ -42,11 +44,9 @@ const Welcome = () => {
 					</View>
 				))}
 			</View>
-			<Link href={"/signin"} asChild>
-				<Button style={tw`w-full`}>
-					Continue
-				</Button>
-			</Link>
+			<Button style={tw`w-full`} onPressIn={() => openSheet(BottomSheetSignIn)}>
+				Continue
+			</Button>
 		</SafeAreaView>
 	</ImageBackground>
 	);
