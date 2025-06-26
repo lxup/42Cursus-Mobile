@@ -28,7 +28,6 @@ const BottomSheetSignIn = React.forwardRef<
 	const { session, login } = useAuth();
 	const { inset } = useTheme();
 	const mutedColor = useThemeColor({}, 'muted');
-	
 	// States
 	const providers: Providers = useMemo(() => [
 		{
@@ -82,11 +81,6 @@ const BottomSheetSignIn = React.forwardRef<
 		>
 			<ThemedText>Connect with</ThemedText>
 			<View style={tw`items-center justify-center gap-2`}>
-				{/* <GoogleSigninButton
-				size={GoogleSigninButton.Size.Wide}
-				color={GoogleSigninButton.Color.Light}
-				onPress={handleGoogleSignIn}
-				/> */}
 				{providers.map((provider, index) => (
 					<TouchableOpacity key={index} onPress={() => handleProviderPress(provider.name)} style={[tw`flex-row items-center border-2 overflow-hidden rounded-full w-full px-4 py-1 gap-2`, { borderColor: mutedColor }]}>
 						<Image source={provider.path} style={tw`h-8 w-8 bg-red-500`} contentFit="cover" />

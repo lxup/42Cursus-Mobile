@@ -5,6 +5,8 @@ import { createContext, useCallback, useContext, useEffect, useState } from "rea
 import { useSupabaseClient } from "./SupabaseProvider";
 import { useUserQuery } from "@/queries/user/userQueries";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
+import useBottomSheetStore from "@/stores/useBottomSheetStore";
+import BottomSheetSetUsername from "@/components/BottomSheets/sheets/BottomSheetSetUsername";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -22,6 +24,7 @@ type AuthProviderProps = {
 const AuthContext = createContext<AuthContextProps | undefined>(undefined);
 
 const AuthProvider = ({children }: AuthProviderProps) => {
+	const { openSheet } = useBottomSheetStore();
 	const supabase = useSupabaseClient();
 	const [session, setSession] = useState<Session | null | undefined>(undefined);
 	const {
@@ -31,6 +34,7 @@ const AuthProvider = ({children }: AuthProviderProps) => {
 	});
 	
 	const login = useCallback(async ({ provider }: { provider: Provider }) => {
+		console.log(`Attempting to login with provider: ${provider}`);
 		switch (provider) {
 			case "google":
 				GoogleSignin.configure({
@@ -47,6 +51,20 @@ const AuthProvider = ({children }: AuthProviderProps) => {
 					token: userInfo.data.idToken,
 				});
 				if (error) throw error;
+				break;
+			case "github":
+				const { data, error: githubError } = await supabase.auth.signInWithOAuth({
+					provider: 'github',
+					options: {
+						scopes: 'read:user user:email',
+					},
+				});
+				if (githubError) throw githubError;
+				console.log('GitHub OAuth data:', data);
+				if (!data?.url) {
+					throw new Error('No URL received for GitHub OAuth');
+				}
+				
 				break;
 			default:
 				throw new Error(`Unsupported provider -> ${provider}`);
@@ -73,6 +91,14 @@ const AuthProvider = ({children }: AuthProviderProps) => {
 			SplashScreen.hide();
 		}
 	}, [session]);
+
+	// Handle set username when user login for the first time
+	useEffect(() => {
+		if (user && user.username === null) {
+			console.log("User logged in for the first time, setting username...");
+			openSheet(BottomSheetSetUsername)
+		}
+	}, [user]);
 
 	return (
 		<AuthContext.Provider

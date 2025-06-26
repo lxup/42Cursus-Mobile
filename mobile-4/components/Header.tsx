@@ -17,7 +17,7 @@ const Header = ({ style, ...props }: HeaderProps) => {
 	<View style={[tw`flex-row items-center justify-between`, style]} {...props}>
 		<ThemedText style={tw`text-lg font-bold`} numberOfLines={1}>Welcome {user?.full_name}</ThemedText>
 		<TouchableOpacity onPress={() => openSheet(BottomSheetUserNav)}>
-			<UserAvatar full_name={user?.full_name} />
+			<UserAvatar avatar_url={user?.avatar_url} full_name={user?.full_name} />
 		</TouchableOpacity>
 	</View>
 	);
