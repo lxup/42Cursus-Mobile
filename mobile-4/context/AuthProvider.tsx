@@ -6,7 +6,6 @@ import { useSupabaseClient } from "./SupabaseProvider";
 import { useUserQuery } from "@/features/user/userQueries";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import useBottomSheetStore from "@/stores/useBottomSheetStore";
-import BottomSheetSetUsername from "@/components/BottomSheets/sheets/BottomSheetSetUsername";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -94,9 +93,15 @@ const AuthProvider = ({children }: AuthProviderProps) => {
 
 	// Handle set username when user login for the first time
 	useEffect(() => {
+		const openUsernameSheet = async () => {
+			const { default: BottomSheetSetUsername } = await import(
+			"@/components/BottomSheets/sheets/BottomSheetSetUsername"
+			);
+			openSheet(BottomSheetSetUsername);
+		};
+
 		if (user && user.username === null) {
-			console.log("User logged in for the first time, setting username...");
-			openSheet(BottomSheetSetUsername)
+			openUsernameSheet();
 		}
 	}, [user]);
 

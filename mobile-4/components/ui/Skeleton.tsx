@@ -17,7 +17,7 @@ interface SkeletonProps
   }
 
 const Skeleton = React.forwardRef<
-	React.ElementRef<typeof Animated.View>,
+	React.ComponentRef<typeof Animated.View>,
 	SkeletonProps
 >(({ style, borderRadius = 6, ...props }, ref) => {
 	const mutedColor = useThemeColor({}, 'muted');
@@ -34,7 +34,6 @@ const Skeleton = React.forwardRef<
 	opacity: sv.value,
 	borderRadius: borderRadius,
 	backgroundColor: mutedColor,
-
 	}));
 
 	return (
