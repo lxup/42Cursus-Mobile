@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import tw from '@/lib/tw';
 import { ActivityIndicator, TextInput, View } from 'react-native';
 import { TrueSheet } from '@lodev09/react-native-true-sheet';
@@ -9,11 +9,13 @@ import { useAuth } from '@/context/AuthProvider';
 import { useTheme } from '@/context/ThemeProvider';
 import { Button } from '@react-navigation/elements';
 import * as z from 'zod';
-import { Controller, Form, useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import useDebounce from '@/hooks/useDebounce';
 import useUsernameAvailability from '@/hooks/useUsernameAvailability';
 import { IconSymbol } from '@/components/ui/IconSymbol';
+import { useUserUpdateMutation } from '@/features/user/userMutations';
+import * as Burnt from 'burnt';
 
 interface BottomSheetSetUsernameProps extends Omit<React.ComponentPropsWithoutRef<typeof TrueSheet>, 'children'> {
 	id: string;
@@ -35,8 +37,11 @@ const BottomSheetSetUsername = React.forwardRef<
 	const mutedColor = useThemeColor({}, 'muted');
 	// States
 	const [isLoading, setIsLoading] = React.useState<boolean>(false);
+	const updateProfileMutation = useUserUpdateMutation({
+		userId: user?.id,
+	});
 	/* ------------------------------- FORM SCHEMA ------------------------------ */
-	const signupSchema = z.object({
+	const usernameSchema = z.object({
 		username: z
 		.string()
 		.min(USERNAME_MIN_LENGTH, {
@@ -58,13 +63,13 @@ const BottomSheetSetUsername = React.forwardRef<
 			// message: common('form.username.schema.format'),
 		})
 	});
-	type SignupFormValues = z.infer<typeof signupSchema>;
-	const defaultValues: Partial<SignupFormValues> = {
+	type UsernameFormValues = z.infer<typeof usernameSchema>;
+	const defaultValues: Partial<UsernameFormValues> = {
 		username: '',
 	};
 	/* -------------------------------------------------------------------------- */
-	const form = useForm<SignupFormValues>({
-		resolver: zodResolver(signupSchema),
+	const form = useForm<UsernameFormValues>({
+		resolver: zodResolver(usernameSchema),
 		defaultValues: defaultValues,
 		mode: 'onChange',
 	});
@@ -72,20 +77,36 @@ const BottomSheetSetUsername = React.forwardRef<
 	const usernameToCheck = useDebounce(form.watch('username'), 500);
 
 	// Handlers
-	const handleOnSubmit = useCallback(() => {
+	const handleSubmit = async (data: UsernameFormValues) => {
 		try {
 			setIsLoading(true);
+			if (!user) throw new Error('User is not authenticated');
+			if (!form.formState.isValid) throw new Error('Form is not valid');
+			if (!usernameAvailability.isAvailable) {
+				throw new Error(`Username "${data.username}" is already taken.`);
+			}
+			await updateProfileMutation.mutateAsync({
+				username: data.username,
+			});
 			closeSheet(id);
-		} catch (error) {
+			Burnt.toast({
+				title: "Saved",
+				preset: 'done',
+			})
+		} catch (error: any) {
 			if (error instanceof Error) {
 				console.error('Error setting username:', error.message);
 			} else {
 				console.error('Unexpected error setting username:', error);
 			}
+			Burnt.toast({
+				title: error.message,
+				preset: 'error',
+			});
 		} finally {
 			setIsLoading(false);
 		}
-	}, []);
+	};
 
 	useEffect(() => {
 		if (!form.formState.errors.username?.message && usernameToCheck) {
@@ -109,7 +130,6 @@ const BottomSheetSetUsername = React.forwardRef<
 		}
 	}, [user, closeSheet, id]);
 
-	console.log('usernameAvailability', usernameAvailability);
 	return (
 	<TrueSheet
 	ref={ref}
@@ -171,7 +191,7 @@ const BottomSheetSetUsername = React.forwardRef<
 				required: true,
 			}}
 			/>
-			<Button onPressIn={handleOnSubmit} style={tw`w-full`} disabled={!form.formState.isValid || isLoading}>
+			<Button onPressIn={form.handleSubmit(handleSubmit)} style={tw`w-full`} disabled={!form.formState.isValid || isLoading}>
 				Enregistrer
 			</Button>
 		</View>

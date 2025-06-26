@@ -9,6 +9,7 @@ import useBottomSheetStore from '@/stores/useBottomSheetStore';
 import { useAuth } from '@/context/AuthProvider';
 import { Provider } from "@supabase/supabase-js";
 import { useTheme } from '@/context/ThemeProvider';
+import * as Burnt from 'burnt';
 
 interface BottomSheetSignInProps extends Omit<React.ComponentPropsWithoutRef<typeof TrueSheet>, 'children'> {
 	id: string;
@@ -54,6 +55,11 @@ const BottomSheetSignIn = React.forwardRef<
 			} else {
 				console.error(`Unexpected error during ${provider} login:`, error);
 			}
+			Burnt.toast({
+				title: `Error`,
+				message: `Failed to sign in with ${provider}. Please try again.`,
+				preset: 'error',
+			});
 		}
 	}
 

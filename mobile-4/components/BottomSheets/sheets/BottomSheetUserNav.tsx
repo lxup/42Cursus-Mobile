@@ -77,7 +77,7 @@ const BottomSheetUserNav = React.forwardRef<
 					<TouchableOpacity
 					key={index}
 					onPress={item.onPress}
-					style={tw`flex-row items-center gap-2 p-4 w-full`}
+					style={tw`flex-row items-center gap-2 w-full`}
 					>
 						<IconSymbol name={item.icon} color={mutedForegroundColor} size={20} />
 						<ThemedText>{item.label}</ThemedText>

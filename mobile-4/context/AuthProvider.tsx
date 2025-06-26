@@ -3,7 +3,7 @@ import { Provider, Session } from "@supabase/supabase-js";
 import { SplashScreen } from "expo-router";
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { useSupabaseClient } from "./SupabaseProvider";
-import { useUserQuery } from "@/queries/user/userQueries";
+import { useUserQuery } from "@/features/user/userQueries";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import useBottomSheetStore from "@/stores/useBottomSheetStore";
 import BottomSheetSetUsername from "@/components/BottomSheets/sheets/BottomSheetSetUsername";
