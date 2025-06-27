@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query"
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query"
 import { userKeys } from "./userKeys"
 import { useSupabaseClient } from "@/context/SupabaseProvider";
 
@@ -34,3 +34,51 @@ export const useUserQuery = ({
 };
 
 /* -------------------------------------------------------------------------- */
+
+// fetch diary notes
+export const useDiaryNotesInfiniteQuery = ({
+	userId,
+	filters,
+} : {
+	userId?: string,
+	filters: {
+		perPage: number;
+		sortBy: 'date';
+		sortOrder: 'asc' | 'desc';
+	};
+}) => {
+	const supabase = useSupabaseClient();
+	return useInfiniteQuery({
+		queryKey: userKeys.diaryNotes(userId as string),
+		queryFn: async ({ pageParam = 0 }) => {
+			if (!userId) return [];
+			let from = (pageParam - 1) * filters.perPage;
+	  		let to = from - 1 + filters.perPage;
+			let request = supabase
+				.from('diary_notes')
+				.select('*')
+				.eq('user_id', userId)
+				.range(from, to)
+				// .order('created_at', { ascending: false });
+			if (filters) {
+				if (filters.sortBy === 'date' && filters.sortOrder) {
+					switch (filters.sortBy) {
+						case 'date':
+							request = request.order('date', { ascending: filters.sortOrder === 'asc' });
+							break;
+						default:
+							request = request.order('created_at', { ascending: filters.sortOrder === 'asc' });
+							break;
+					}
+				}
+			}
+			const { data, error } = await request;
+			if (error) throw error;
+			return data;
+		},
+		initialPageParam: 1,
+		getNextPageParam: (lastPage, pages) => {
+			return lastPage?.length === filters.perPage ? pages.length + 1 : undefined;
+		},
+	});
+};
