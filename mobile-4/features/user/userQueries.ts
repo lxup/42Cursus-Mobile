@@ -41,33 +41,39 @@ export const useDiaryNotesInfiniteQuery = ({
 	filters,
 } : {
 	userId?: string,
-	filters: {
-		perPage: number;
-		sortBy: 'date';
-		sortOrder: 'asc' | 'desc';
+	filters?: {
+		perPage?: number;
+		sortBy?: 'date';
+		sortOrder?: 'asc' | 'desc';
 	};
 }) => {
+	const mergeFilters = {
+		perPage: 10,
+		sortBy: 'date',
+		sortOrder: 'desc',
+		...filters,
+	};
 	const supabase = useSupabaseClient();
 	return useInfiniteQuery({
 		queryKey: userKeys.diaryNotes(userId as string),
 		queryFn: async ({ pageParam = 0 }) => {
 			if (!userId) return [];
-			let from = (pageParam - 1) * filters.perPage;
-	  		let to = from - 1 + filters.perPage;
+			let from = (pageParam - 1) * mergeFilters.perPage;
+	  		let to = from - 1 + mergeFilters.perPage;
 			let request = supabase
 				.from('diary_notes')
 				.select('*')
 				.eq('user_id', userId)
 				.range(from, to)
 				// .order('created_at', { ascending: false });
-			if (filters) {
-				if (filters.sortBy === 'date' && filters.sortOrder) {
-					switch (filters.sortBy) {
+			if (mergeFilters) {
+				if (mergeFilters.sortBy === 'date' && mergeFilters.sortOrder) {
+					switch (mergeFilters.sortBy) {
 						case 'date':
-							request = request.order('date', { ascending: filters.sortOrder === 'asc' });
+							request = request.order('date', { ascending: mergeFilters.sortOrder === 'asc' });
 							break;
 						default:
-							request = request.order('created_at', { ascending: filters.sortOrder === 'asc' });
+							request = request.order('created_at', { ascending: mergeFilters.sortOrder === 'asc' });
 							break;
 					}
 				}
@@ -78,7 +84,7 @@ export const useDiaryNotesInfiniteQuery = ({
 		},
 		initialPageParam: 1,
 		getNextPageParam: (lastPage, pages) => {
-			return lastPage?.length === filters.perPage ? pages.length + 1 : undefined;
+			return lastPage?.length === mergeFilters.perPage ? pages.length + 1 : undefined;
 		},
 	});
 };
