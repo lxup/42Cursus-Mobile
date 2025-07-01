@@ -15,6 +15,7 @@ import { useDiaryNotesUpdateMutation } from "@/features/user/userMutations";
 import RNDateTimePicker from "@react-native-community/datetimepicker";
 import getFeelingIcon from "@/hooks/getFeelingIcon";
 import { IconSymbol } from "@/components/ui/IconSymbol";
+import { Picker } from "@react-native-picker/picker";
 
 const TITLE_MIN_LENGTH = 1;
 const TITLE_MAX_LENGTH = 100;
@@ -152,7 +153,7 @@ const NoteScreen = () => {
 				)}
 			</View>
 			{!isEditing ? <View style={tw`w-full gap-2`}>
-				<IconSymbol name={feelingIcon?.icon!} color={feelingIcon?.color!} size={24} style={tw`self-center`} />
+				<ThemedText style={tw`text-4xl text-center`}>{feelingIcon}</ThemedText>
 				<View style={tw``}>
 					<ThemedText style={tw`text-lg font-bold text-center`}>{note.title}</ThemedText>
 					<ThemedText style={[tw`text-sm text-center italic`, { color: mutedForegroundColor }]}>
@@ -166,6 +167,31 @@ const NoteScreen = () => {
 				)}
 			</View> : (
 				<>
+				<Controller
+				control={form.control}
+				render={({field: { onChange, onBlur, value }}) => (
+					<View style={tw`gap-1 w-full`}>
+						<ThemedText style={tw`text-sm font-bold`}>Feeling</ThemedText>
+						<Picker
+						selectedValue={value}
+						onValueChange={(itemValue) => onChange(itemValue)}>
+							<Picker.Item label={`${getFeelingIcon('happy')} Happy`} value="happy" />
+							<Picker.Item label={`${getFeelingIcon('neutral')} Neutral`} value="neutral" />
+							<Picker.Item label={`${getFeelingIcon('sad')} Sad`} value="sad" />
+							<Picker.Item label={`${getFeelingIcon('angry')} Angry`} value="angry" />
+							<Picker.Item label={`${getFeelingIcon('tired')} Tired`} value="tired" />
+							<Picker.Item label={`${getFeelingIcon('excited')} Excited`} value="excited" />
+						</Picker>
+						{form.formState.errors.feeling?.message ? (
+							<ThemedText style={[tw`text-xs text-red-500`]}>{form.formState.errors.feeling.message}</ThemedText>
+						) : null}
+					</View>
+				)}
+				name="feeling"
+				rules={{
+					required: true,
+				}}
+				/>
 				<Controller
 				control={form.control}
 				render={({field: { onChange, onBlur, value }}) => (

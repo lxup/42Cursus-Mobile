@@ -134,9 +134,7 @@ const BottomSheetNewNote = React.forwardRef<
 					<ThemedText style={tw`text-sm font-bold`}>Feeling</ThemedText>
 					<Picker
 					selectedValue={value}
-					onValueChange={(itemValue, itemIndex) =>
-						onChange(itemValue)
-					}>
+					onValueChange={(itemValue) => onChange(itemValue)}>
 						<Picker.Item label="Happy" value="happy" />
 						<Picker.Item label="Neutral" value="neutral" />
 						<Picker.Item label="Sad" value="sad" />

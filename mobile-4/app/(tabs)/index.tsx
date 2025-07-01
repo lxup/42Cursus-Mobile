@@ -130,7 +130,7 @@ const CurrentlyScreen = () => {
     >
         <TouchableWithoutFeedback onPress={() => router.push({ pathname: `/note/[id]`, params: item })}>
           <View style={[tw`flex-row items-center gap-2 rounded-md p-2`, { backgroundColor: mutedColor }]}>
-            <IconSymbol name={feelingIcon?.icon!} color={feelingIcon?.color!} size={24} style={tw`self-center`} />
+            <ThemedText style={tw`text-lg`}>{feelingIcon}</ThemedText>
             <View>
               <ThemedText style={tw`text-lg font-bold`}>{item.title}</ThemedText>
               <ThemedText style={[tw`text-sm`, { color: mutedForegroundColor }]}>

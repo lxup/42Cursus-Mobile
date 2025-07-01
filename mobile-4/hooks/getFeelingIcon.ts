@@ -1,24 +1,19 @@
 import { Feeling } from "@/types/type.db";
-import { SFSymbol } from "expo-symbols";
-import { OpaqueColorValue } from "react-native";
 
-type FeelingIcon = {
-	icon: SFSymbol;
-	color: string | OpaqueColorValue;
-}
-
-const getFeelingIcon = (feeling: Feeling): FeelingIcon => {
+const getFeelingIcon = (feeling: Feeling): string => {
 	switch (feeling) {
 		case 'happy':
-			return {
-				icon: 'smiley',
-				color: 'yellow',
-			}
+			return '😀';
+		case 'angry':
+			return '😡';
+		case 'sad':
+			return '😢';
+		case 'tired':
+			return '😴';
+		case 'excited':
+			return '🤗';
 		default: // 'neutral'
-			return {
-				icon: 'questionmark',
-				color: 'gray',
-			}
+			return '😐';
 	}
 };
 
