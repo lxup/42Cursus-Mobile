@@ -8,4 +8,6 @@ export const userKeys = {
 	detail: (userId: string) => [...userKeys.all, userId] as const,
 
 	diaryNotes: (userId: string) => [...userKeys.detail(userId), 'diaryNotes'] as const,
+
+	diaryNote: (noteId: number) => [...userKeys.all, 'diaryNote', noteId] as const,
 };

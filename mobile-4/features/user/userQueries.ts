@@ -1,6 +1,7 @@
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query"
 import { userKeys } from "./userKeys"
 import { useSupabaseClient } from "@/context/SupabaseProvider";
+import { DiaryNote } from "@/types/type.db";
 
 /* ---------------------------------- USER ---------------------------------- */
 
@@ -48,7 +49,7 @@ export const useDiaryNotesInfiniteQuery = ({
 	};
 }) => {
 	const mergeFilters = {
-		perPage: 10,
+		perPage: 20,
 		sortBy: 'date',
 		sortOrder: 'desc',
 		...filters,
@@ -64,8 +65,7 @@ export const useDiaryNotesInfiniteQuery = ({
 				.from('diary_notes')
 				.select('*')
 				.eq('user_id', userId)
-				.range(from, to)
-				// .order('created_at', { ascending: false });
+				.range(from, to);
 			if (mergeFilters) {
 				if (mergeFilters.sortBy === 'date' && mergeFilters.sortOrder) {
 					switch (mergeFilters.sortBy) {
@@ -86,5 +86,30 @@ export const useDiaryNotesInfiniteQuery = ({
 		getNextPageParam: (lastPage, pages) => {
 			return lastPage?.length === mergeFilters.perPage ? pages.length + 1 : undefined;
 		},
+	});
+};
+
+export const useDiaryNoteQuery = ({
+	id,
+	initialData,
+} : {
+	id?: number,
+	initialData?: DiaryNote | null,
+}) => {
+	const supabase = useSupabaseClient();
+	return useQuery({
+		queryKey: userKeys.diaryNote(id as number),
+		queryFn: async () => {
+			if (!id) throw new Error('Missing note id');
+			const { data, error } = await supabase
+				.from('diary_notes')
+				.select('*')
+				.eq('id', id)
+				.single();
+			if (error) throw error;
+			return data;
+		},
+		enabled: !!id,
+		initialData: initialData ? initialData : undefined,
 	});
 };

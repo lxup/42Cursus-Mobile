@@ -12,6 +12,7 @@ import { SupabaseProvider } from '@/context/SupabaseProvider';
 import { AuthProvider, useAuth } from '@/context/AuthProvider';
 import { ThemeProvider as CustomThemeProvider } from '@/context/ThemeProvider';
 import { BottomSheetManager } from '@/components/BottomSheets/BottomSheetManager';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 const ProtectedLayout = () => {
   const { session } = useAuth();
@@ -20,13 +21,14 @@ const ProtectedLayout = () => {
     <Stack
       screenOptions={{
         headerShown: false,
-        animation: 'fade',
+        // animation: 'fade',
       }}
     >
       <Stack.Protected guard={!!session}>
         <Stack.Screen name="(tabs)" />
       </Stack.Protected>
       <Stack.Screen name="welcome" />
+      <Stack.Screen name="note/[id]/index" options={{ presentation: 'modal' }}/>
     </Stack>
   );
 };
@@ -50,19 +52,21 @@ const RootLayout = () => {
   }
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <CustomThemeProvider>
-        <SupabaseProvider>
-          <QueryClientProvider client={queryClient}>
-            <AuthProvider>
-              <ProtectedLayout />
-              <BottomSheetManager />
-              <StatusBar style="auto" />
-            </AuthProvider>
-          </QueryClientProvider>
-        </SupabaseProvider>
-      </CustomThemeProvider>
-    </ThemeProvider>
+    <GestureHandlerRootView>
+      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+        <CustomThemeProvider>
+          <SupabaseProvider>
+            <QueryClientProvider client={queryClient}>
+              <AuthProvider>
+                <ProtectedLayout />
+                <BottomSheetManager />
+                <StatusBar style="auto" />
+              </AuthProvider>
+            </QueryClientProvider>
+          </SupabaseProvider>
+        </CustomThemeProvider>
+      </ThemeProvider>
+    </GestureHandlerRootView>
   );
 };
 

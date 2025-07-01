@@ -12,6 +12,8 @@ import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as Burnt from 'burnt';
 import RNDateTimePicker from '@react-native-community/datetimepicker';
+import { useDiaryNotesInsertMutation } from '@/features/user/userMutations';
+import {Picker} from '@react-native-picker/picker';
 
 interface BottomSheetNewNoteProps extends Omit<React.ComponentPropsWithoutRef<typeof TrueSheet>, 'children'> {
 	id: string;
@@ -24,10 +26,13 @@ const DESCRIPTION_MAX_LENGTH = 500;
 const BottomSheetNewNote = React.forwardRef<
 	React.ComponentRef<typeof TrueSheet>,
 	BottomSheetNewNoteProps
->(({ id, ...props }, ref) => {
+>(({ id, sizes, ...props }, ref) => {
 	const { closeSheet } = useBottomSheetStore();
 	const { user } = useAuth();
 	const { inset } = useTheme();
+	const insertDiaryNoteMutation = useDiaryNotesInsertMutation({
+		userId: user?.id,
+	});
 	// Colors
 	const foregroundColor = useThemeColor({}, 'text');
 	const mutedForegroundColor = useThemeColor({}, 'mutedForeground');
@@ -36,6 +41,8 @@ const BottomSheetNewNote = React.forwardRef<
 	const [isLoading, setIsLoading] = React.useState<boolean>(false);
 	/* ------------------------------- FORM SCHEMA ------------------------------ */
 	const newNoteSchema = z.object({
+		feeling: z
+			.enum(['happy', 'neutral', 'sad', 'angry', 'tired', 'excited']),
 		title: z
 			.string()
 			.min(TITLE_MIN_LENGTH)
@@ -49,6 +56,7 @@ const BottomSheetNewNote = React.forwardRef<
 	});
 	type NewNoteFormValues = z.infer<typeof newNoteSchema>;
 	const defaultValues: Partial<NewNoteFormValues> = {
+		feeling: 'neutral',
 		title: '',
 		date: new Date(),
 	};
@@ -64,7 +72,12 @@ const BottomSheetNewNote = React.forwardRef<
 		try {
 			setIsLoading(true);
 			if (!user) throw new Error('User is not authenticated');
-			if (!form.formState.isValid) throw new Error('Form is not valid');
+			await insertDiaryNoteMutation.mutateAsync({
+				feeling: data.feeling,
+				title: data.title,
+				description: data.description,
+				date: data.date,
+			});
 			closeSheet(id);
 			Burnt.toast({
 				title: "Created",
@@ -88,6 +101,7 @@ const BottomSheetNewNote = React.forwardRef<
 			await ref.current.present();
 		};
 	}}
+	sizes={["large"]}
 	{...props}
 	>
 		<View
@@ -113,6 +127,33 @@ const BottomSheetNewNote = React.forwardRef<
 					<ThemedText>Save</ThemedText>
 				</TouchableOpacity>
 			</View>
+			<Controller
+			control={form.control}
+			render={({field: { onChange, onBlur, value }}) => (
+				<View style={tw`gap-1 w-full`}>
+					<ThemedText style={tw`text-sm font-bold`}>Feeling</ThemedText>
+					<Picker
+					selectedValue={value}
+					onValueChange={(itemValue, itemIndex) =>
+						onChange(itemValue)
+					}>
+						<Picker.Item label="Happy" value="happy" />
+						<Picker.Item label="Neutral" value="neutral" />
+						<Picker.Item label="Sad" value="sad" />
+						<Picker.Item label="Angry" value="angry" />
+						<Picker.Item label="Tired" value="tired" />
+						<Picker.Item label="Excited" value="excited" />
+					</Picker>
+					{form.formState.errors.feeling?.message ? (
+						<ThemedText style={[tw`text-xs text-red-500`]}>{form.formState.errors.feeling.message}</ThemedText>
+					) : null}
+				</View>
+			)}
+			name="feeling"
+			rules={{
+				required: true,
+			}}
+			/>
 			<Controller
 			control={form.control}
 			render={({field: { onChange, onBlur, value }}) => (

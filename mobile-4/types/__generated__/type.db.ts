@@ -13,7 +13,8 @@ export type Database = {
         Row: {
           created_at: string
           date: string
-          description: string
+          description: string | null
+          feeling: Database["public"]["Enums"]["feeling_enum"]
           id: number
           title: string
           user_id: string
@@ -21,7 +22,8 @@ export type Database = {
         Insert: {
           created_at?: string
           date?: string
-          description: string
+          description?: string | null
+          feeling?: Database["public"]["Enums"]["feeling_enum"]
           id?: number
           title: string
           user_id: string
@@ -29,7 +31,8 @@ export type Database = {
         Update: {
           created_at?: string
           date?: string
-          description?: string
+          description?: string | null
+          feeling?: Database["public"]["Enums"]["feeling_enum"]
           id?: number
           title?: string
           user_id?: string
@@ -76,7 +79,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      feeling_enum: "happy" | "neutral" | "sad" | "angry" | "tired" | "excited"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -191,6 +194,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      feeling_enum: ["happy", "neutral", "sad", "angry", "tired", "excited"],
+    },
   },
 } as const
