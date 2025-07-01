@@ -14,6 +14,7 @@ import * as Burnt from 'burnt';
 import RNDateTimePicker from '@react-native-community/datetimepicker';
 import { useDiaryNotesInsertMutation } from '@/features/user/userMutations';
 import {Picker} from '@react-native-picker/picker';
+import getFeelingIcon from '@/hooks/getFeelingIcon';
 
 interface BottomSheetNewNoteProps extends Omit<React.ComponentPropsWithoutRef<typeof TrueSheet>, 'children'> {
 	id: string;
@@ -135,12 +136,12 @@ const BottomSheetNewNote = React.forwardRef<
 					<Picker
 					selectedValue={value}
 					onValueChange={(itemValue) => onChange(itemValue)}>
-						<Picker.Item label="Happy" value="happy" />
-						<Picker.Item label="Neutral" value="neutral" />
-						<Picker.Item label="Sad" value="sad" />
-						<Picker.Item label="Angry" value="angry" />
-						<Picker.Item label="Tired" value="tired" />
-						<Picker.Item label="Excited" value="excited" />
+						<Picker.Item label={`${getFeelingIcon('happy')} Happy`} value="happy" />
+						<Picker.Item label={`${getFeelingIcon('neutral')} Neutral`} value="neutral" />
+						<Picker.Item label={`${getFeelingIcon('sad')} Sad`} value="sad" />
+						<Picker.Item label={`${getFeelingIcon('angry')} Angry`} value="angry" />
+						<Picker.Item label={`${getFeelingIcon('tired')} Tired`} value="tired" />
+						<Picker.Item label={`${getFeelingIcon('excited')} Excited`} value="excited" />
 					</Picker>
 					{form.formState.errors.feeling?.message ? (
 						<ThemedText style={[tw`text-xs text-red-500`]}>{form.formState.errors.feeling.message}</ThemedText>

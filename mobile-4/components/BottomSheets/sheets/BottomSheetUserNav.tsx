@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import tw from '@/lib/tw';
 import { Alert, TouchableOpacity, View } from 'react-native';
 import { TrueSheet } from '@lodev09/react-native-true-sheet';
@@ -25,9 +25,17 @@ const BottomSheetUserNav = React.forwardRef<
 	// States
 	const { inset } = useTheme();
 	const { closeSheet } = useBottomSheetStore();
-	const { logout } = useAuth();
+	const { user, logout } = useAuth();
 
-	const items: { label: string; icon: SFSymbol, onPress: () => void }[] = [
+	const items: { label: string; icon: SFSymbol, onPress: () => void }[] = useMemo(() => [
+		{
+			label: 'Profile',
+			icon: 'person.crop.circle',
+			onPress: () => {
+				router.push(`/user/${user?.username}`);
+				closeSheet(id);
+			},
+		},
 		{
 			label: 'Sign Out',
 			icon: 'rectangle.portrait.and.arrow.right',
@@ -50,7 +58,7 @@ const BottomSheetUserNav = React.forwardRef<
 			);
 			}
 		},
-	];
+	], [user?.username, closeSheet, id, logout, router]);
 
 	return (
 	<TrueSheet
@@ -70,7 +78,7 @@ const BottomSheetUserNav = React.forwardRef<
 		>
 			<View
 			style={[
-				tw`flex-row items-center gap-2 p-4`,
+				tw`gap-4 p-4`,
 			]}
 			>
 				{items.map((item, index) => (
@@ -79,7 +87,7 @@ const BottomSheetUserNav = React.forwardRef<
 					onPress={item.onPress}
 					style={tw`flex-row items-center gap-2 w-full`}
 					>
-						<IconSymbol name={item.icon} color={mutedForegroundColor} size={20} />
+						<IconSymbol name={item.icon} color={mutedForegroundColor} size={24} />
 						<ThemedText>{item.label}</ThemedText>
 					</TouchableOpacity>
 				))}

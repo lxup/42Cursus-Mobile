@@ -14,8 +14,8 @@ import * as Burnt from 'burnt';
 import { useDiaryNotesUpdateMutation } from "@/features/user/userMutations";
 import RNDateTimePicker from "@react-native-community/datetimepicker";
 import getFeelingIcon from "@/hooks/getFeelingIcon";
-import { IconSymbol } from "@/components/ui/IconSymbol";
 import { Picker } from "@react-native-picker/picker";
+import { IconSymbol } from "@/components/ui/IconSymbol";
 
 const TITLE_MIN_LENGTH = 1;
 const TITLE_MAX_LENGTH = 100;
@@ -137,18 +137,18 @@ const NoteScreen = () => {
 				{isPresented && (
 					<TouchableOpacity
 					disabled={isLoading}
-					onPress={() => isEditing ? setIsEditing(false) : router.back()}
+					onPress={() => isEditing ? setIsEditing(false) : setIsEditing(true)}
 					>
-						<ThemedText>Cancel</ThemedText>
+						<ThemedText>{isEditing ? 'Cancel' : 'Edit'}</ThemedText>
 					</TouchableOpacity>
 				)}
-
 				{user?.id === note?.user_id && (
 					<TouchableOpacity
 					disabled={isLoading}
-					onPress={isEditing ? form.handleSubmit(handleSubmit) : () => setIsEditing(true)}
+					onPress={isEditing ? form.handleSubmit(handleSubmit) : router.back}
 					>
-						<ThemedText>{isEditing ? 'Save' : 'Edit'}</ThemedText>
+						{/* <ThemedText>{isEditing ? 'Save' : 'Edit'}</ThemedText> */}
+						{isEditing ? <ThemedText>Save</ThemedText> : <IconSymbol name="xmark" color={mutedForegroundColor} size={16} />}
 					</TouchableOpacity>
 				)}
 			</View>

@@ -29,6 +29,7 @@ const ProtectedLayout = () => {
       </Stack.Protected>
       <Stack.Screen name="welcome" />
       <Stack.Screen name="note/[id]/index" options={{ presentation: 'modal' }}/>
+      <Stack.Screen name="user/[username]/index" options={{ presentation: 'modal' }}/>
     </Stack>
   );
 };
