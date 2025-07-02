@@ -170,31 +170,6 @@ const NoteScreen = () => {
 				control={form.control}
 				render={({field: { onChange, onBlur, value }}) => (
 					<View style={tw`gap-1 w-full`}>
-						<ThemedText style={tw`text-sm font-bold`}>Feeling</ThemedText>
-						<Picker
-						selectedValue={value}
-						onValueChange={(itemValue) => onChange(itemValue)}>
-							<Picker.Item label={`${getFeelingIcon('happy')} Happy`} value="happy" />
-							<Picker.Item label={`${getFeelingIcon('neutral')} Neutral`} value="neutral" />
-							<Picker.Item label={`${getFeelingIcon('sad')} Sad`} value="sad" />
-							<Picker.Item label={`${getFeelingIcon('angry')} Angry`} value="angry" />
-							<Picker.Item label={`${getFeelingIcon('tired')} Tired`} value="tired" />
-							<Picker.Item label={`${getFeelingIcon('excited')} Excited`} value="excited" />
-						</Picker>
-						{form.formState.errors.feeling?.message ? (
-							<ThemedText style={[tw`text-xs text-red-500`]}>{form.formState.errors.feeling.message}</ThemedText>
-						) : null}
-					</View>
-				)}
-				name="feeling"
-				rules={{
-					required: true,
-				}}
-				/>
-				<Controller
-				control={form.control}
-				render={({field: { onChange, onBlur, value }}) => (
-					<View style={tw`gap-1 w-full`}>
 						<ThemedText style={tw`text-sm font-bold`}>Title</ThemedText>
 						<TextInput
 						nativeID="username"
@@ -218,6 +193,31 @@ const NoteScreen = () => {
 					</View>
 				)}
 				name="title"
+				rules={{
+					required: true,
+				}}
+				/>
+				<Controller
+				control={form.control}
+				render={({field: { onChange, onBlur, value }}) => (
+					<View style={tw`gap-1 w-full`}>
+						<ThemedText style={tw`text-sm font-bold`}>Feeling</ThemedText>
+						<Picker
+						selectedValue={value}
+						onValueChange={(itemValue) => onChange(itemValue)}>
+							<Picker.Item label={`${getFeelingIcon('happy')} Happy`} value="happy" />
+							<Picker.Item label={`${getFeelingIcon('neutral')} Neutral`} value="neutral" />
+							<Picker.Item label={`${getFeelingIcon('sad')} Sad`} value="sad" />
+							<Picker.Item label={`${getFeelingIcon('angry')} Angry`} value="angry" />
+							<Picker.Item label={`${getFeelingIcon('tired')} Tired`} value="tired" />
+							<Picker.Item label={`${getFeelingIcon('excited')} Excited`} value="excited" />
+						</Picker>
+						{form.formState.errors.feeling?.message ? (
+							<ThemedText style={[tw`text-xs text-red-500`]}>{form.formState.errors.feeling.message}</ThemedText>
+						) : null}
+					</View>
+				)}
+				name="feeling"
 				rules={{
 					required: true,
 				}}

@@ -6,8 +6,18 @@ import { useSupabaseClient } from "./SupabaseProvider";
 import { useUserQuery } from "@/features/user/userQueries";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import useBottomSheetStore from "@/stores/useBottomSheetStore";
+import { AppState } from "react-native";
+import { supabase } from "@/lib/supabase/client";
 
 SplashScreen.preventAutoHideAsync();
+
+AppState.addEventListener('change', (state) => {
+  if (state === 'active') {
+    supabase.auth.startAutoRefresh()
+  } else {
+    supabase.auth.stopAutoRefresh()
+  }
+})
 
 type AuthContextProps = {
 	session: Session | null | undefined;
@@ -33,7 +43,6 @@ const AuthProvider = ({children }: AuthProviderProps) => {
 	});
 	
 	const login = useCallback(async ({ provider }: { provider: Provider }) => {
-		console.log(`Attempting to login with provider: ${provider}`);
 		switch (provider) {
 			case "google":
 				GoogleSignin.configure({
@@ -59,7 +68,6 @@ const AuthProvider = ({children }: AuthProviderProps) => {
 					},
 				});
 				if (githubError) throw githubError;
-				console.log('GitHub OAuth data:', data);
 				if (!data?.url) {
 					throw new Error('No URL received for GitHub OAuth');
 				}
@@ -84,7 +92,7 @@ const AuthProvider = ({children }: AuthProviderProps) => {
 			setSession(session);
 		});
 	}, []);
-
+	
 	useEffect(() => {
 		if (session !== undefined) {
 			SplashScreen.hide();

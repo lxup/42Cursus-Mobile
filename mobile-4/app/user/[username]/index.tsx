@@ -115,9 +115,9 @@ const UserScreen = () => {
 
   return (
     <ThemedView style={tw`flex-1`}>
-      <View style={tw`items-center justify-center p-4`}>
+      <View style={tw`items-center justify-center p-4 gap-2`}>
         <UserAvatar avatar_url={user.avatar_url} full_name={user.full_name} style={tw`w-24 h-24`}/>
-        <View>
+        <View style={tw`items-center`}>
           <ThemedText style={tw`text-lg font-bold`}>
             {user.full_name || user.username}
           </ThemedText>

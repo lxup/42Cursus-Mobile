@@ -10,7 +10,7 @@ import tw from "@/lib/tw";
 import useBottomSheetStore from "@/stores/useBottomSheetStore";
 import { Button } from "@react-navigation/elements";
 import { ActivityIndicator, Text, TouchableWithoutFeedback, View } from "react-native";
-import Reanimated, { SharedValue, useAnimatedStyle, useSharedValue } from "react-native-reanimated";
+import Reanimated, { configureReanimatedLogger, SharedValue, useAnimatedStyle, useSharedValue } from "react-native-reanimated";
 import { LegendList } from "@legendapp/list"
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { DiaryNote } from "@/types/type.db";
@@ -20,6 +20,10 @@ import * as Burnt from 'burnt';
 import { useDiaryNotesDeleteMutation } from "@/features/user/userMutations";
 import { useRouter } from "expo-router";
 import getFeelingIcon from "@/hooks/getFeelingIcon";
+
+configureReanimatedLogger({
+  strict: false,
+});
 
 const AddNoteButton = ({ addNoteButtonHeight, tabBarHeight } : { addNoteButtonHeight: SharedValue<number>, tabBarHeight: number }) => {
   const { openSheet } = useBottomSheetStore();
@@ -157,7 +161,6 @@ const CurrentlyScreen = () => {
     onEndReached={() => hasNextPage && fetchNextPage()}
     onEndReachedThreshold={0.3}
     onRefresh={refetch}
-    // ItemSeparatorComponent={() => <View style={[tw`mx-2 rounded-full`, { height: 0.5, backgroundColor: mutedColor }]} />}
     contentContainerStyle={[{ paddingBottom: tabBarHeight + addNoteButtonHeight.get() + 12 }]}
     />
     <AddNoteButton  addNoteButtonHeight={addNoteButtonHeight} tabBarHeight={tabBarHeight} />
