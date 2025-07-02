@@ -18,8 +18,21 @@ interface BottomSheetSignInProps extends Omit<React.ComponentPropsWithoutRef<typ
 type Providers = {
 	name: Provider;
 	label: string;
-	path: string;
+	img: any;
 }[];
+
+const providers: Providers = [
+	{
+		name: "google",
+		label: "Google",
+		img: require("@/assets/images/providers/google.png")
+	},
+	{
+		name: "github",
+		label: "GitHub",
+		img: require("@/assets/images/providers/github.png"),
+	}
+]
 
 const BottomSheetSignIn = React.forwardRef<
 	React.ComponentRef<typeof TrueSheet>,
@@ -29,19 +42,6 @@ const BottomSheetSignIn = React.forwardRef<
 	const { session, login } = useAuth();
 	const { inset } = useTheme();
 	const mutedColor = useThemeColor({}, 'muted');
-	// States
-	const providers: Providers = useMemo(() => [
-		{
-			name: "google",
-			label: "Google",
-			path: "@/assets/images/providers/google.png",
-		},
-		{
-			name: "github",
-			label: "GitHub",
-			path: "@/assets/images/providers/github.png",
-		}
-	], []);
 	// Handlers
 	const handleProviderPress = async (provider: Provider) => {
 		try {
@@ -49,12 +49,10 @@ const BottomSheetSignIn = React.forwardRef<
 				provider: provider
 			});
 			closeSheet(id);
-		} catch {
-			// if (error instanceof Error) {
-			// 	console.error(`Error during ${provider} login:`, error.message);
-			// } else {
-			// 	console.error(`Unexpected error during ${provider} login:`, error);
-			// }
+		} catch (error) {
+			if (error instanceof Error) {
+				if (error.message === 'cancelled') return;
+			}
 			Burnt.toast({
 				title: `Error`,
 				message: `Failed to sign in with ${provider}. Please try again.`,
@@ -89,7 +87,7 @@ const BottomSheetSignIn = React.forwardRef<
 			<View style={tw`items-center justify-center gap-2`}>
 				{providers.map((provider, index) => (
 					<TouchableOpacity key={index} onPress={() => handleProviderPress(provider.name)} style={[tw`flex-row items-center border-2 overflow-hidden rounded-full w-full px-4 py-1 gap-2`, { borderColor: mutedColor }]}>
-						<Image source={provider.path} style={tw`h-8 w-8 bg-red-500`} contentFit="cover" />
+						<Image source={provider.img} style={tw`h-8 w-8`} contentFit="cover" />
 						<ThemedText>{provider.label}</ThemedText>
 					</TouchableOpacity>
 				))}

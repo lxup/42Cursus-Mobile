@@ -51,6 +51,7 @@ const AuthProvider = ({children }: AuthProviderProps) => {
 				})
 				await GoogleSignin.hasPlayServices();
 				const userInfo = await GoogleSignin.signIn();
+				if (userInfo.type === 'cancelled') throw new Error('cancelled');
 				if (!userInfo.data?.idToken) {
 					throw new Error('No ID token received');
 				}
