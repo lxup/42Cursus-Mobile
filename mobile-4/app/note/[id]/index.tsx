@@ -157,7 +157,7 @@ const NoteScreen = () => {
 					</ThemedText>
 				</View>
 				{note.description ? (
-					<ThemedText style={tw`text-sm`}>{note.description}</ThemedText>
+					<ThemedText style={tw`text-sm text-justify`}>{note.description}</ThemedText>
 				) : (
 					<ThemedText style={[tw`text-sm text-center`, { color: mutedForegroundColor }]}>No description</ThemedText>
 				)}

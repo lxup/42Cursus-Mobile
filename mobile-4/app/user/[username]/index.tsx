@@ -48,9 +48,9 @@ const DiaryNotesList = ({ userId, children } : DiaryNotesListProps) => {
       <TouchableWithoutFeedback onPress={() => router.push({ pathname: `/note/[id]`, params: item })}>
         <View style={[tw`flex-row items-center gap-2 rounded-md p-2`, { backgroundColor: mutedColor }]}>
           <ThemedText style={tw`text-lg`}>{feelingIcon}</ThemedText>
-          <View>
-            <ThemedText style={tw`text-lg font-bold`}>{item.title}</ThemedText>
-            <ThemedText style={[tw`text-sm`, { color: mutedForegroundColor }]}>
+          <View style={tw`flex-1`}>
+            <ThemedText numberOfLines={1} style={tw`text-lg font-bold`}>{item.title}</ThemedText>
+            <ThemedText numberOfLines={1} style={[tw`text-sm`, { color: mutedForegroundColor }]}>
               {`${new Date(item.date).toLocaleDateString()} ${item.description ? item.description : ''}`}
             </ThemedText>
           </View>
