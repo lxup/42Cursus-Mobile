@@ -6,6 +6,7 @@ export const userKeys = {
 	 * @returns The user details
 	 */
 	detail: (userId: string) => [...userKeys.all, userId] as const,
+	detailByUsername: (username: string) => [...userKeys.all, 'byUsername', username] as const,
 
 	diaryNotes: (
 		userId: string,

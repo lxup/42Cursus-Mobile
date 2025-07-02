@@ -1,7 +1,7 @@
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query"
 import { userKeys } from "./userKeys"
 import { useSupabaseClient } from "@/context/SupabaseProvider";
-import { DiaryNote } from "@/types/type.db";
+import { DiaryNote, User } from "@/types/type.db";
 
 /* ---------------------------------- USER ---------------------------------- */
 
@@ -31,6 +31,33 @@ export const useUserQuery = ({
 			return data;	
 		},
 		enabled: enabled ? enabled : userId !== undefined,
+	});
+};
+
+export const useUserQueryByUsername = ({
+	username,
+	enabled,
+	initialData,
+} : {
+	username?: string;
+	enabled?: boolean;
+	initialData?: User | null;
+}) => {
+	const supabase = useSupabaseClient();
+	return useQuery({
+		queryKey: userKeys.detailByUsername(username as string),
+		queryFn: async () => {
+			if (!username) return null;
+			const { data, error } = await supabase
+				.from('profiles')
+				.select('*')
+				.eq('username', username)
+				.single();
+			if (error) throw error;
+			return data;
+		},
+		enabled: enabled ? enabled : username !== undefined,
+		initialData: initialData ? initialData : undefined,
 	});
 };
 

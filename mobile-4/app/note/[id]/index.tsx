@@ -147,7 +147,6 @@ const NoteScreen = () => {
 					disabled={isLoading}
 					onPress={isEditing ? form.handleSubmit(handleSubmit) : router.back}
 					>
-						{/* <ThemedText>{isEditing ? 'Save' : 'Edit'}</ThemedText> */}
 						{isEditing ? <ThemedText>Save</ThemedText> : <IconSymbol name="xmark" color={mutedForegroundColor} size={16} />}
 					</TouchableOpacity>
 				)}

@@ -32,7 +32,13 @@ const BottomSheetUserNav = React.forwardRef<
 			label: 'Profile',
 			icon: 'person.crop.circle',
 			onPress: () => {
-				router.push(`/user/${user?.username}`);
+				router.push({
+					pathname: '/user/[username]',
+					params: {
+						...user,
+						username: user?.username!,
+					},
+				})
 				closeSheet(id);
 			},
 		},

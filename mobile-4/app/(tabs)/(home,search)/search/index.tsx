@@ -8,75 +8,30 @@ import useDebounce from "@/hooks/useDebounce";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import tw from "@/lib/tw";
 import { LegendList } from "@legendapp/list";
-import { Link } from "expo-router";
+import { Link, useRouter } from "expo-router";
 import { useCallback, useState } from "react";
 import { ActivityIndicator, TextInput, TouchableOpacity, View } from "react-native";
 
 const Search = () => {
-  // Colors
-  const foregroundColor = useThemeColor({}, 'text');
-  const mutedColor = useThemeColor({}, 'muted');
-  const mutedForegroundColor = useThemeColor({}, 'mutedForeground');
-
-  const { inset } = useTheme();
-  const [search, setSearch] = useState<string>("");
-  const debouncedSearch = useDebounce(search, 500);
-
-  const {
-	data: users,
-	isLoading,
-	isError,
-	fetchNextPage,
-	hasNextPage,
-	isRefetching,
-	refetch
-  } = useSearchUsersInfiniteQuery({
-	query: debouncedSearch,
-  });
-
-  const renderSearch = useCallback(() => {
-    if (debouncedSearch.length === 0) {
-      return (
-        <View style={tw`items-center justify-center`}>
-          <ThemedText style={{ color: mutedForegroundColor }}>Search for users by username</ThemedText>
-        </View>
-      )
-    }
-    return (
-		<LegendList
-		data={users?.pages.flat() || []}
-		renderItem={({ item }) => (
-			<Link href={`/user/${item.username}`} asChild>
-				<View
-				style={[
-					tw`flex-row items-center gap-2 rounded-md p-2`,
-					{ backgroundColor: mutedColor },
-				]}
-				>
-					<UserAvatar avatar_url={item.avatar_url} full_name={item.full_name} />
-					<ThemedText style={tw`text-lg font-bold`}>{item.username}</ThemedText>
-				</View>
-			</Link>
-		)}
-		ListEmptyComponent={() => (
-			isLoading ? (
-				<ActivityIndicator />
-			) : isError ? (
-				<ThemedText style={tw`text-center text-red-500`}>Error loading users</ThemedText>
-			) : (
-				<ThemedText style={[tw`text-center`, { color: mutedForegroundColor }]}>No users found</ThemedText>
-			)
-		)}
-		keyExtractor={(item) => item.id.toString()}
-		estimatedItemSize={50}
-		refreshing={isRefetching}
-		onEndReached={() => hasNextPage && fetchNextPage()}
-		onEndReachedThreshold={0.3}
-		onRefresh={refetch}
-		contentContainerStyle={[{ paddingBottom: inset.bottom }]}
-		/>
-    )
-  }, [debouncedSearch, mutedForegroundColor]);
+	const router = useRouter();
+	// Colors
+	const foregroundColor = useThemeColor({}, 'text');
+	const mutedColor = useThemeColor({}, 'muted');
+	const mutedForegroundColor = useThemeColor({}, 'mutedForeground');
+	const { inset } = useTheme();
+	const [search, setSearch] = useState<string>("");
+	const debouncedSearch = useDebounce(search, 500);
+	const {
+		data: users,
+		isLoading,
+		isError,
+		fetchNextPage,
+		hasNextPage,
+		isRefetching,
+		refetch
+	} = useSearchUsersInfiniteQuery({
+		query: debouncedSearch,
+	});
   return (
     <ThemedView
 		style={[
@@ -102,16 +57,23 @@ const Search = () => {
 				value={search}
 				onChangeText={setSearch}
 				/>
-        {search && (<TouchableOpacity onPress={() => setSearch("")}>
+        		{search && (<TouchableOpacity onPress={() => setSearch("")}>
 					<IconSymbol size={15} name="xmark" color={foregroundColor} style={{ opacity: 0.8 }} />
 				</TouchableOpacity>)}
 			</View>
-			{/* {renderSearch()} */}
 			<LegendList
 			data={users?.pages.flat() || []}
 			renderItem={({ item }) => (
-				<Link
-				href={`/user/${item.username}`}
+				<TouchableOpacity
+				onPress={() => {
+					router.push({
+						pathname: `/user/[username]`,
+						params: {
+							...item,
+							username: item.username!
+						}
+					});
+				}}
 				style={[tw`w-full`]}
 				>
 					<View
@@ -128,7 +90,7 @@ const Search = () => {
 							</ThemedText>
 						</View>
 					</View>
-				</Link>
+				</TouchableOpacity>
 			)}
 			ListEmptyComponent={() => (
 				isLoading ? (
