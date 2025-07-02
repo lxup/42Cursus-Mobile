@@ -1,17 +1,22 @@
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
+import { IconSymbol } from "@/components/ui/IconSymbol";
 import UserAvatar from "@/components/ui/UserAvatar";
+import { useTheme } from "@/context/ThemeProvider";
 import { useDiaryNotesInfiniteQuery, useUserQueryByUsername } from "@/features/user/userQueries";
 import getFeelingIcon from "@/hooks/getFeelingIcon";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import tw from "@/lib/tw";
 import { DiaryNote } from "@/types/type.db";
 import { LegendList } from "@legendapp/list";
-import { useLocalSearchParams, useRouter } from "expo-router";
-import { ActivityIndicator, Text, TouchableWithoutFeedback, View } from "react-native";
+import { router, useLocalSearchParams, useRouter } from "expo-router";
+import { ActivityIndicator, Text, TouchableOpacity, TouchableWithoutFeedback, View } from "react-native";
 
-const DiaryNotesList = ({ userId } : { userId: string }) => {
+interface DiaryNotesListProps extends React.PropsWithChildren<{ userId: string }> {}
+
+const DiaryNotesList = ({ userId, children } : DiaryNotesListProps) => {
   const router = useRouter();
+  const { inset } = useTheme();
   // Colors
   const mutedColor = useThemeColor({}, 'muted');
   const mutedForegroundColor = useThemeColor({}, 'mutedForeground');
@@ -39,19 +44,22 @@ const DiaryNotesList = ({ userId } : { userId: string }) => {
   }) => {
     const feelingIcon = getFeelingIcon(item.feeling);
     return (
-    <TouchableWithoutFeedback onPress={() => router.push({ pathname: `/note/[id]`, params: item })}>
-      <View style={[tw`flex-row items-center gap-2 rounded-md p-2`, { backgroundColor: mutedColor }]}>
-        <ThemedText style={tw`text-lg`}>{feelingIcon}</ThemedText>
-        <View>
-          <ThemedText style={tw`text-lg font-bold`}>{item.title}</ThemedText>
-          <ThemedText style={[tw`text-sm`, { color: mutedForegroundColor }]}>
-            {`${new Date(item.date).toLocaleDateString()} ${item.description ? item.description : ''}`}
-          </ThemedText>
+    <View key={index} style={tw`px-2 py-1`}>
+      <TouchableWithoutFeedback onPress={() => router.push({ pathname: `/note/[id]`, params: item })}>
+        <View style={[tw`flex-row items-center gap-2 rounded-md p-2`, { backgroundColor: mutedColor }]}>
+          <ThemedText style={tw`text-lg`}>{feelingIcon}</ThemedText>
+          <View>
+            <ThemedText style={tw`text-lg font-bold`}>{item.title}</ThemedText>
+            <ThemedText style={[tw`text-sm`, { color: mutedForegroundColor }]}>
+              {`${new Date(item.date).toLocaleDateString()} ${item.description ? item.description : ''}`}
+            </ThemedText>
+          </View>
         </View>
-      </View>
-    </TouchableWithoutFeedback>
+      </TouchableWithoutFeedback>
+    </View>
     )
   }}
+  ListHeaderComponent={() => (children)}
   ListEmptyComponent={() => (
     isLoading ? (
       <ActivityIndicator />
@@ -67,14 +75,16 @@ const DiaryNotesList = ({ userId } : { userId: string }) => {
   onEndReached={() => hasNextPage && fetchNextPage()}
   onEndReachedThreshold={0.3}
   onRefresh={refetch}
-  contentContainerStyle={tw`px-2`}
+  contentContainerStyle={{ paddingBottom: inset.bottom, paddingLeft: inset.left, paddingRight: inset.right }}
   />
   )
 };
 
 const UserScreen = () => {
+  const { orientation } = useTheme();
   const userParams = useLocalSearchParams<any>();
   // Colors
+  const backgroundColor = useThemeColor({}, 'background');
   const mutedForegroundColor = useThemeColor({}, 'mutedForeground');
   const {
     data: user,
@@ -90,6 +100,7 @@ const UserScreen = () => {
       updated_at: userParams.updated_at,
     }
   });
+  const isPresented = router.canGoBack();
 
   if (isLoading || user === undefined) {
 		return (
@@ -115,7 +126,7 @@ const UserScreen = () => {
 
   return (
     <ThemedView style={tw`flex-1`}>
-      <View style={tw`items-center justify-center p-4 gap-2`}>
+      <View style={tw`relative items-center justify-center p-4 gap-2`}>
         <UserAvatar avatar_url={user.avatar_url} full_name={user.full_name} style={tw`w-24 h-24`}/>
         <View style={tw`items-center`}>
           <ThemedText style={tw`text-lg font-bold`}>
@@ -125,6 +136,20 @@ const UserScreen = () => {
             @{user.username}
           </ThemedText>
         </View>
+        {isPresented && orientation === 'landscape' && (
+          <TouchableOpacity
+          onPress={() => router.back()}
+          style={[
+            tw`absolute top-4 right-4 p-2 rounded-full`,
+            { backgroundColor: backgroundColor }
+          ]}>
+            <IconSymbol
+            name="xmark"
+            color={mutedForegroundColor}
+            size={20}
+            />
+          </TouchableOpacity>
+        )}
       </View>
       <DiaryNotesList userId={user.id} />
     </ThemedView>

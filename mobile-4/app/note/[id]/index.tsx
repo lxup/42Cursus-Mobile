@@ -5,7 +5,7 @@ import { useDiaryNoteQuery } from "@/features/user/userQueries";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import tw from "@/lib/tw";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { router, useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { ActivityIndicator, Text, TextInput, TouchableOpacity, View } from "react-native";
@@ -15,7 +15,6 @@ import { useDiaryNotesUpdateMutation } from "@/features/user/userMutations";
 import RNDateTimePicker from "@react-native-community/datetimepicker";
 import getFeelingIcon from "@/hooks/getFeelingIcon";
 import { Picker } from "@react-native-picker/picker";
-import { IconSymbol } from "@/components/ui/IconSymbol";
 
 const TITLE_MIN_LENGTH = 1;
 const TITLE_MAX_LENGTH = 100;
@@ -23,10 +22,10 @@ const DESCRIPTION_MAX_LENGTH = 500;
 
 const NoteScreen = () => {
 	const { user } = useAuth();
-	const isPresented = router.canGoBack();
 	const noteParams = useLocalSearchParams<any>();
 	const updateDiaryNoteMutation = useDiaryNotesUpdateMutation();
 	// Colors
+	const accentColor = useThemeColor({}, 'accent');
 	const foregroundColor = useThemeColor({}, 'text');
 	const mutedColor = useThemeColor({}, 'muted');
 	const mutedForegroundColor = useThemeColor({}, 'mutedForeground');
@@ -134,20 +133,18 @@ const NoteScreen = () => {
 	return (
 		<ThemedView style={tw`flex-1 items-center gap-2 py-2 px-4`}>
 			<View style={tw`flex-row items-center justify-between w-full mb-2`}>
-				{isPresented && (
-					<TouchableOpacity
-					disabled={isLoading}
-					onPress={() => isEditing ? setIsEditing(false) : setIsEditing(true)}
-					>
-						<ThemedText>{isEditing ? 'Cancel' : 'Edit'}</ThemedText>
-					</TouchableOpacity>
-				)}
+				<TouchableOpacity
+				disabled={isLoading}
+				onPress={() => isEditing ? setIsEditing(false) : undefined}
+				>
+					<Text style={{ color: accentColor }}>{isEditing ? 'Cancel' : ''}</Text>
+				</TouchableOpacity>
 				{user?.id === note?.user_id && (
 					<TouchableOpacity
 					disabled={isLoading}
-					onPress={isEditing ? form.handleSubmit(handleSubmit) : router.back}
+					onPress={isEditing ? form.handleSubmit(handleSubmit) : () => setIsEditing(true)}
 					>
-						{isEditing ? <ThemedText>Save</ThemedText> : <IconSymbol name="xmark" color={mutedForegroundColor} size={16} />}
+						<Text style={{ color: accentColor }}>{isEditing ? 'Save' : 'Edit'}</Text>
 					</TouchableOpacity>
 				)}
 			</View>

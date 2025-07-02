@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import tw from '@/lib/tw';
-import { TextInput, TouchableOpacity, View } from 'react-native';
+import { ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { TrueSheet } from '@lodev09/react-native-true-sheet';
 import { ThemedText } from '../../ThemedText';
 import { useThemeColor } from '@/hooks/useThemeColor';
@@ -35,11 +35,14 @@ const BottomSheetNewNote = React.forwardRef<
 		userId: user?.id,
 	});
 	// Colors
+	const accentColor = useThemeColor({}, 'accent');
 	const foregroundColor = useThemeColor({}, 'text');
 	const mutedForegroundColor = useThemeColor({}, 'mutedForeground');
 	const mutedColor = useThemeColor({}, 'muted');
 	// States
 	const [isLoading, setIsLoading] = React.useState<boolean>(false);
+	// Refs
+  	const scrollview = useRef<ScrollView>(null)
 	/* ------------------------------- FORM SCHEMA ------------------------------ */
 	const newNoteSchema = z.object({
 		feeling: z
@@ -103,12 +106,15 @@ const BottomSheetNewNote = React.forwardRef<
 		};
 	}}
 	sizes={["large"]}
+	scrollRef={scrollview as any}
 	{...props}
 	>
-		<View
-		style={[
+		<ScrollView
+		ref={scrollview}
+		nestedScrollEnabled
+		contentContainerStyle={[
 			{ paddingBottom: inset.bottom },
-			tw`flex-1 items-center gap-2 px-4`,
+			tw`flex-1 items-center gap-2 px-4 pt-4`,
 		]}
 		>
 			<View style={tw`flex-row items-center justify-between w-full mb-2`}>
@@ -116,7 +122,7 @@ const BottomSheetNewNote = React.forwardRef<
 				disabled={isLoading}
 				onPress={() => closeSheet(id)}
 				>
-					<ThemedText>Cancel</ThemedText>
+					<Text style={{ color: accentColor }}>Cancel</Text>
 				</TouchableOpacity>
 				<ThemedText style={tw`font-bold`}>
 					Add a new note
@@ -125,7 +131,7 @@ const BottomSheetNewNote = React.forwardRef<
 				disabled={isLoading}
 				onPress={form.handleSubmit(handleSubmit)}
 				>
-					<ThemedText>Save</ThemedText>
+					<Text style={{ color: accentColor }}>Save</Text>
 				</TouchableOpacity>
 			</View>
 			<Controller
@@ -240,7 +246,7 @@ const BottomSheetNewNote = React.forwardRef<
 				required: true,
 			}}
 			/>
-		</View>
+		</ScrollView>
 	</TrueSheet>
 	);
 });

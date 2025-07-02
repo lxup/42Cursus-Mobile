@@ -8,9 +8,11 @@ import useDebounce from "@/hooks/useDebounce";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import tw from "@/lib/tw";
 import { LegendList } from "@legendapp/list";
-import { Link, useRouter } from "expo-router";
-import { useCallback, useState } from "react";
+import { useRouter } from "expo-router";
+import { useState } from "react";
 import { ActivityIndicator, TextInput, TouchableOpacity, View } from "react-native";
+
+const PADDING = 8;
 
 const Search = () => {
 	const router = useRouter();
@@ -18,7 +20,7 @@ const Search = () => {
 	const foregroundColor = useThemeColor({}, 'text');
 	const mutedColor = useThemeColor({}, 'muted');
 	const mutedForegroundColor = useThemeColor({}, 'mutedForeground');
-	const { inset } = useTheme();
+	const { inset, orientation } = useTheme();
 	const [search, setSearch] = useState<string>("");
 	const debouncedSearch = useDebounce(search, 500);
 	const {
@@ -35,13 +37,17 @@ const Search = () => {
   return (
     <ThemedView
 		style={[
-			{ paddingTop: inset.top },
-			tw`flex-1 gap-4 px-2`
+			tw`flex-1 gap-4`
 		]}
 		>
 			<View
 			style={[
-				{ backgroundColor: mutedColor },
+				{
+					backgroundColor: mutedColor,
+					marginTop: inset.top + (orientation === 'landscape' ? PADDING : 0),
+					marginLeft: inset.left + (orientation === 'portrait' ? PADDING : 0),
+					marginRight: inset.right + (orientation === 'portrait' ? PADDING : 0),
+				},
 				tw`flex-row items-center gap-2 rounded-md px-2 py-1`,
 			]}
 			>
@@ -64,33 +70,35 @@ const Search = () => {
 			<LegendList
 			data={users?.pages.flat() || []}
 			renderItem={({ item }) => (
-				<TouchableOpacity
-				onPress={() => {
-					router.push({
-						pathname: `/user/[username]`,
-						params: {
-							...item,
-							username: item.username!
-						}
-					});
-				}}
-				style={[tw`w-full`]}
-				>
-					<View
-					style={[
-						tw`w-full flex-row items-center gap-2 rounded-md p-2`,
-						{ backgroundColor: mutedColor },
-					]}
+				<View key={item.id} style={tw`px-2 py-1`}>
+					<TouchableOpacity
+					onPress={() => {
+						router.push({
+							pathname: `/user/[username]`,
+							params: {
+								...item,
+								username: item.username!
+							}
+						});
+					}}
+					style={[tw`w-full`]}
 					>
-						<UserAvatar avatar_url={item.avatar_url} full_name={item.full_name} />
-						<View>
-							<ThemedText style={tw`text-lg font-bold`}>{item.full_name}</ThemedText>
-							<ThemedText style={[tw`text-sm`, { color: mutedForegroundColor }]}>
-								@{item.username}
-							</ThemedText>
+						<View
+						style={[
+							tw`w-full flex-row items-center gap-2 rounded-md p-2`,
+							{ backgroundColor: mutedColor },
+						]}
+						>
+							<UserAvatar avatar_url={item.avatar_url} full_name={item.full_name} />
+							<View>
+								<ThemedText style={tw`text-lg font-bold`}>{item.full_name}</ThemedText>
+								<ThemedText style={[tw`text-sm`, { color: mutedForegroundColor }]}>
+									@{item.username}
+								</ThemedText>
+							</View>
 						</View>
-					</View>
-				</TouchableOpacity>
+					</TouchableOpacity>
+				</View>
 			)}
 			ListEmptyComponent={() => (
 				isLoading ? (
@@ -109,7 +117,7 @@ const Search = () => {
 			onEndReached={() => hasNextPage && fetchNextPage()}
 			onEndReachedThreshold={0.3}
 			onRefresh={refetch}
-			contentContainerStyle={[{ paddingBottom: inset.bottom }]}
+			contentContainerStyle={[{ paddingBottom: inset.bottom, paddingLeft: inset.left, paddingRight: inset.right }]}
 			/>
 		</ThemedView>
   );

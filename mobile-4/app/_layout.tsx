@@ -40,12 +40,12 @@ const RootLayout = () => {
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
   });
 
-  useEffect(() => {
-    const unlockScreenOerientation = async () => {
-      await ScreenOrientation.unlockAsync()
-    }
-    unlockScreenOerientation()
-  }, [])
+  // useEffect(() => {
+  //   const unlockScreenOerientation = async () => {
+  //     await ScreenOrientation.unlockAsync()
+  //   }
+  //   unlockScreenOerientation()
+  // }, [])
 
   if (!loaded) {
     // Async font loading only occurs in development.

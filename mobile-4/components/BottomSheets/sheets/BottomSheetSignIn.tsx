@@ -50,6 +50,7 @@ const BottomSheetSignIn = React.forwardRef<
 			});
 			closeSheet(id);
 		} catch (error) {
+			console.error(`Failed to sign in with ${provider}:`, error);
 			if (error instanceof Error) {
 				if (error.message === 'cancelled') return;
 			}

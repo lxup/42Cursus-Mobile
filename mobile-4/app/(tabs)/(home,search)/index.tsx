@@ -27,6 +27,8 @@ configureReanimatedLogger({
 
 const AddNoteButton = ({ addNoteButtonHeight, tabBarHeight } : { addNoteButtonHeight: SharedValue<number>, tabBarHeight: number }) => {
   const { openSheet } = useBottomSheetStore();
+  const foregroundColor = useThemeColor({}, 'text');
+  const accentColor = useThemeColor({}, 'accent');
   return (
     <View
       style={[
@@ -37,7 +39,7 @@ const AddNoteButton = ({ addNoteButtonHeight, tabBarHeight } : { addNoteButtonHe
         addNoteButtonHeight.value = e.nativeEvent.layout.height;
       }}
     >
-      <Button onPressIn={() => openSheet(BottomSheetNewNote)} style={tw`pointer-events-auto`}>
+      <Button color={foregroundColor} onPressIn={() => openSheet(BottomSheetNewNote)} style={[tw`pointer-events-auto`, { backgroundColor: accentColor }]}>
         Add
       </Button>
     </View>
@@ -87,10 +89,12 @@ const RightAction = (prog: SharedValue<number>, drag: SharedValue<number>, item:
   );
 };
 
+const PADDING = 8;
+
 const CurrentlyScreen = () => {
   const { user } = useAuth();
   const tabBarHeight = useBottomTabOverflow();
-  const { inset } = useTheme();
+  const { inset, orientation } = useTheme();
   const router = useRouter();
   // Colors
   const mutedColor = useThemeColor({}, 'muted');
@@ -112,7 +116,15 @@ const CurrentlyScreen = () => {
 
   return (
   <ThemedView style={tw`flex-1 gap-2`}>
-    <Header style={[tw`mx-2`, { paddingTop: inset.top, paddingLeft: inset.left, paddingRight: inset.right }]} />
+    <Header
+    style={[
+      tw`mx-2`,
+      {
+        paddingTop: inset.top + (orientation === 'landscape' ? PADDING : 0),
+        paddingLeft: inset.left + (orientation === 'portrait' ? PADDING : 0),
+        paddingRight: inset.right + (orientation === 'portrait' ? PADDING : 0),
+      }
+    ]} />
     <LegendList
     data={data?.pages.flat() || []}
     renderItem={({
@@ -126,7 +138,7 @@ const CurrentlyScreen = () => {
       return (
       <ReanimatedSwipeable
       key={index}
-      containerStyle={tw` px-2 py-1`}
+      containerStyle={tw`px-2 py-1`}
       friction={2}
       enableTrackpadTwoFingerGesture
       rightThreshold={40}
@@ -161,9 +173,9 @@ const CurrentlyScreen = () => {
     onEndReached={() => hasNextPage && fetchNextPage()}
     onEndReachedThreshold={0.3}
     onRefresh={refetch}
-    contentContainerStyle={[{ paddingBottom: tabBarHeight + addNoteButtonHeight.get() + 12 }]}
+    contentContainerStyle={[{ paddingBottom: tabBarHeight + addNoteButtonHeight.get() + 12, paddingLeft: inset.left, paddingRight: inset.right }]}
     />
-    <AddNoteButton  addNoteButtonHeight={addNoteButtonHeight} tabBarHeight={tabBarHeight} />
+    <AddNoteButton addNoteButtonHeight={addNoteButtonHeight} tabBarHeight={tabBarHeight} />
   </ThemedView>
   );
 };

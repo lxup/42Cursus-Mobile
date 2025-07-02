@@ -7,17 +7,21 @@ import { useUserQuery } from "@/features/user/userQueries";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import useBottomSheetStore from "@/stores/useBottomSheetStore";
 import { AppState } from "react-native";
-import { supabase } from "@/lib/supabase/client";
+import { supabase as SupabaseCustom } from "@/lib/supabase/client";
+import * as AuthSession from 'expo-auth-session';
+import * as WebBrowser from 'expo-web-browser';
+import * as QueryParams from 'expo-auth-session/build/QueryParams'
 
 SplashScreen.preventAutoHideAsync();
+WebBrowser.maybeCompleteAuthSession();
 
 AppState.addEventListener('change', (state) => {
   if (state === 'active') {
-    supabase.auth.startAutoRefresh()
+    SupabaseCustom.auth.startAutoRefresh()
   } else {
-    supabase.auth.stopAutoRefresh()
+    SupabaseCustom.auth.stopAutoRefresh()
   }
-})
+});
 
 type AuthContextProps = {
 	session: Session | null | undefined;
@@ -35,19 +39,36 @@ const AuthContext = createContext<AuthContextProps | undefined>(undefined);
 const AuthProvider = ({children }: AuthProviderProps) => {
 	const { openSheet } = useBottomSheetStore();
 	const supabase = useSupabaseClient();
+	const redirectUri = AuthSession.makeRedirectUri();
 	const [session, setSession] = useState<Session | null | undefined>(undefined);
 	const {
 		data: user,
 	} = useUserQuery({
 		userId: session?.user.id,
 	});
-	
+
+	// Functions
+	const createSessionFromUrl = useCallback(async (url: string) => {
+		const { params, errorCode } = QueryParams.getQueryParams(url);
+		if (errorCode) throw new Error(errorCode);
+		const { access_token, refresh_token } = params;
+
+		if (!access_token) return;
+
+		const { data, error } = await supabase.auth.setSession({
+			access_token,
+			refresh_token,
+		});
+		if (error) throw error;
+		return data.session;
+	}, [supabase.auth]);
+
 	const login = useCallback(async ({ provider }: { provider: Provider }) => {
 		switch (provider) {
 			case "google":
 				GoogleSignin.configure({
 					scopes: ["https://www.googleapis.com/auth/drive.readonly"],
-					iosClientId: process.env.EXPO_PUBLIC_IOS_CLIENT_ID,
+					iosClientId: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID,
 				})
 				await GoogleSignin.hasPlayServices();
 				const userInfo = await GoogleSignin.signIn();
@@ -55,29 +76,29 @@ const AuthProvider = ({children }: AuthProviderProps) => {
 				if (!userInfo.data?.idToken) {
 					throw new Error('No ID token received');
 				}
-				const { error } = await supabase.auth.signInWithIdToken({
+				const { error: googleError } = await supabase.auth.signInWithIdToken({
 					provider: 'google',
 					token: userInfo.data.idToken,
 				});
-				if (error) throw error;
-				break;
-			case "github":
-				const { data, error: githubError } = await supabase.auth.signInWithOAuth({
-					provider: 'github',
-					options: {
-						scopes: 'read:user user:email',
-					},
-				});
-				if (githubError) throw githubError;
-				if (!data?.url) {
-					throw new Error('No URL received for GitHub OAuth');
-				}
-				
+				if (googleError) throw googleError;
 				break;
 			default:
-				throw new Error(`Unsupported provider -> ${provider}`);
+				const { data, error } = await supabase.auth.signInWithOAuth({
+					provider: provider,
+					options: {
+						redirectTo: redirectUri,
+						skipBrowserRedirect: true,
+					},
+				})
+				if (error) throw error
+				const res = await WebBrowser.openAuthSessionAsync(data?.url ?? '', redirectUri);
+				if (res.type === 'success') {
+					const { url } = res
+					await createSessionFromUrl(url)
+				}
+				break;
 		}
-	}, []);
+	}, [supabase.auth, redirectUri, createSessionFromUrl]);
 	
 	const logout = useCallback(async () => {
 		const { error } = await supabase.auth.signOut();
