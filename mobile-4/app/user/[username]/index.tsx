@@ -127,9 +127,6 @@ const UserScreen = () => {
         </View>
       </View>
       <DiaryNotesList userId={user.id} />
-      <View>
-
-      </View>
     </ThemedView>
   );
 };

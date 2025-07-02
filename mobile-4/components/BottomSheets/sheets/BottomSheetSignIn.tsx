@@ -49,12 +49,12 @@ const BottomSheetSignIn = React.forwardRef<
 				provider: provider
 			});
 			closeSheet(id);
-		} catch (error) {
-			if (error instanceof Error) {
-				console.error(`Error during ${provider} login:`, error.message);
-			} else {
-				console.error(`Unexpected error during ${provider} login:`, error);
-			}
+		} catch {
+			// if (error instanceof Error) {
+			// 	console.error(`Error during ${provider} login:`, error.message);
+			// } else {
+			// 	console.error(`Unexpected error during ${provider} login:`, error);
+			// }
 			Burnt.toast({
 				title: `Error`,
 				message: `Failed to sign in with ${provider}. Please try again.`,

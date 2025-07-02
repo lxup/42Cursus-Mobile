@@ -27,7 +27,7 @@ const Welcome = () => {
 			description: "Write about your day, your thoughts, and your feelings.",
 		}
 	], []);
-	if (session) return <Redirect href={"/(tabs)"} />;
+	if (session) return <Redirect href={"/(tabs)/(home)"} />;
 	return (
 	<ImageBackground
 	source={require("@/assets/images/background/sunny.jpg")}
