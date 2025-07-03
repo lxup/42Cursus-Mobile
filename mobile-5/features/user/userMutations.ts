@@ -108,7 +108,6 @@ export const useDiaryNotesDeleteMutation = ({
 				.from('diary_notes')
 				.delete()
 				.eq('id', id)
-				.eq('user_id', userId)
 				.select('*')
 				.single();
 			if (error) throw error;

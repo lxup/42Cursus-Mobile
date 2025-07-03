@@ -1,6 +1,7 @@
 import { ThemedText } from "@/components/ThemedText";
 import { useAuth } from "@/context/AuthProvider";
 import { useTheme } from "@/context/ThemeProvider";
+import { useDiaryNotesDeleteMutation } from "@/features/user/userMutations";
 import { useDiaryNotesInfiniteQuery } from "@/features/user/userQueries";
 import getFeelingIcon from "@/hooks/getFeelingIcon";
 import { useThemeColor } from "@/hooks/useThemeColor";
@@ -11,6 +12,53 @@ import { useRouter } from "expo-router";
 import { useCallback, useMemo, useState } from "react";
 import { ActivityIndicator, Text, TouchableWithoutFeedback, View } from "react-native";
 import {Calendar, CalendarUtils, DateData} from 'react-native-calendars';
+import ReanimatedSwipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
+import Reanimated, { SharedValue, useAnimatedStyle } from "react-native-reanimated";
+import * as Burnt from 'burnt';
+import { IconSymbol } from "@/components/ui/IconSymbol";
+
+const RightAction = (prog: SharedValue<number>, drag: SharedValue<number>, item: DiaryNote) => {
+  // Colors
+  const accentColor = useThemeColor({}, 'accent');
+  const foregroundColor = useThemeColor({}, 'text');
+  // Mutations
+  const deleteDiaryNote = useDiaryNotesDeleteMutation({
+    userId: item.user_id,
+  });
+  // Styles
+  const styleAnimation = useAnimatedStyle(() => {
+    return {
+      transform: [{ translateX: drag.value + 50 }],
+    };
+  });
+  // Handlers
+  const handleDelete = async () => {
+    try {
+      await deleteDiaryNote.mutateAsync({
+        id: item.id,
+      });
+      Burnt.toast({
+        title: 'Deleted',
+        preset: 'done',
+      });
+    } catch {
+      Burnt.toast({
+        title: 'Error',
+        preset: 'error',
+      });
+    }
+  };
+
+  return (
+    <Reanimated.View style={[tw`p-1`, styleAnimation]}>
+      <TouchableWithoutFeedback onPress={handleDelete}>
+        <View style={[tw`flex-1 items-center justify-center rounded-md`, { width: 50, backgroundColor: accentColor }]}>
+          <IconSymbol name="trash" color={foregroundColor}/>
+        </View>
+      </TouchableWithoutFeedback>
+    </Reanimated.View>
+  );
+};
 
 const AgendaScreen = () => {
   const { user } = useAuth();
@@ -61,9 +109,9 @@ const AgendaScreen = () => {
   } = useDiaryNotesInfiniteQuery({
     userId: user?.id,
     filters: {
-      dateFrom: selected,
-      dateTo: selected,
-    }
+      dateFrom: `${selected}T00:00:00`,
+      dateTo: `${selected}T23:59:59.999`,
+    },
   });
   return (
   <LegendList
@@ -77,19 +125,26 @@ const AgendaScreen = () => {
     }) => {
       const feelingIcon = getFeelingIcon(item.feeling);
       return (
-      <View key={index} style={tw`px-2 py-1`}>
+      <ReanimatedSwipeable
+      key={index}
+      containerStyle={tw`px-2 py-1`}
+      friction={2}
+      enableTrackpadTwoFingerGesture
+      rightThreshold={40}
+      renderRightActions={(prog, drag) => RightAction(prog, drag, item)}
+    >
         <TouchableWithoutFeedback onPress={() => router.push({ pathname: `/note/[id]`, params: item })}>
           <View style={[tw`flex-row items-center gap-2 rounded-md p-2`, { backgroundColor: mutedColor }]}>
             <ThemedText style={tw`text-lg`}>{feelingIcon}</ThemedText>
             <View style={tw`flex-1`}>
               <ThemedText numberOfLines={1} style={tw`text-lg font-bold`}>{item.title}</ThemedText>
-              <ThemedText numberOfLines={1} style={[tw`text-sm`, { color: mutedForegroundColor }]}>
+              <ThemedText numberOfLines={1} style={[tw`shrink text-sm`, { color: mutedForegroundColor }]}>
                 {`${new Date(item.date).toLocaleDateString()} ${item.description ? item.description : ''}`}
               </ThemedText>
             </View>
           </View>
         </TouchableWithoutFeedback>
-      </View>
+      </ReanimatedSwipeable>
       )
     }}
     ListHeaderComponent={() => (
