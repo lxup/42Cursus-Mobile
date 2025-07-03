@@ -107,6 +107,8 @@ export const useDiaryNotesInfiniteQuery = ({
 		perPage?: number;
 		sortBy?: 'date';
 		sortOrder?: 'asc' | 'desc';
+		dateFrom?: string;
+		dateTo?: string;
 	};
 }) => {
 	const mergeFilters = {
@@ -137,6 +139,12 @@ export const useDiaryNotesInfiniteQuery = ({
 							request = request.order('created_at', { ascending: mergeFilters.sortOrder === 'asc' });
 							break;
 					}
+				}
+				if (mergeFilters.dateFrom) {
+					request = request.gte('date', mergeFilters.dateFrom);
+				}
+				if (mergeFilters.dateTo) {
+					request = request.lte('date', mergeFilters.dateTo);
 				}
 			}
 			const { data, error } = await request;
