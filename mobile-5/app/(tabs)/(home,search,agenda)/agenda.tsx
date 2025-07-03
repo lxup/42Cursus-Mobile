@@ -10,7 +10,7 @@ import { LegendList } from "@legendapp/list";
 import { useRouter } from "expo-router";
 import { useCallback, useMemo, useState } from "react";
 import { ActivityIndicator, Text, TouchableWithoutFeedback, View } from "react-native";
-import {Calendar, CalendarUtils} from 'react-native-calendars';
+import {Calendar, CalendarUtils, DateData} from 'react-native-calendars';
 
 const AgendaScreen = () => {
   const { user } = useAuth();
@@ -46,7 +46,7 @@ const AgendaScreen = () => {
     };
   }, [selected, accentColor, foregroundColor, getDate]);
   // Handlers
-  const handleDayPress = (day: { dateString: string }) => {
+  const handleDayPress = (day: DateData) => {
     setSelected(day.dateString);
   };
   // Queries
@@ -95,6 +95,7 @@ const AgendaScreen = () => {
     ListHeaderComponent={() => (
       <Calendar
       testID={'agenda'}
+      current={selected}
       enableSwipeMonths
       onDayPress={handleDayPress}
       markedDates={marked}
